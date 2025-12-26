@@ -6,14 +6,21 @@
 // State for RSVP flow
 let currentInvitation = null;
 
+// State for photo uploads
+let selectedFiles = [];
+
 document.addEventListener('DOMContentLoaded', function() {
     initNavigation();
     initRSVPLookup();
     initScrollEffects();
     initGalleryLightbox();
+    initPhotoUpload();
     
     // Check for invitation code in URL
     checkURLForCode();
+    
+    // Load shared photos
+    loadSharedPhotos();
 });
 
 /**
@@ -614,6 +621,9 @@ function initGalleryLightbox() {
             lightboxCaption.textContent = images[currentIndex].alt;
             lightbox.classList.add('active');
             document.body.style.overflow = 'hidden';
+            // Show nav buttons for gallery
+            prevBtn.style.display = '';
+            nextBtn.style.display = '';
         }
     }
     
@@ -746,4 +756,338 @@ function initScrollEffects() {
     }
 
     window.addEventListener('scroll', highlightNav);
+}
+
+/**
+ * Photo Upload functionality
+ */
+function initPhotoUpload() {
+    const uploadZone = document.getElementById('uploadZone');
+    const photoInput = document.getElementById('photoInput');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const previewGrid = document.getElementById('previewGrid');
+    const clearBtn = document.getElementById('clearPhotos');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadForm = document.getElementById('photoUploadForm');
+    const uploadSuccess = document.getElementById('uploadSuccess');
+    const uploadMore = document.getElementById('uploadMore');
+    
+    if (!uploadZone) return;
+    
+    // Click to browse
+    uploadZone.addEventListener('click', function() {
+        photoInput.click();
+    });
+    
+    // File input change
+    photoInput.addEventListener('change', function(e) {
+        handleFiles(e.target.files);
+    });
+    
+    // Drag and drop
+    uploadZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+    
+    uploadZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+    });
+    
+    uploadZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+    
+    // Clear all
+    clearBtn.addEventListener('click', function() {
+        clearAllFiles();
+    });
+    
+    // Upload more button
+    uploadMore.addEventListener('click', function() {
+        uploadSuccess.classList.add('hidden');
+        uploadForm.classList.remove('hidden');
+        clearAllFiles();
+    });
+    
+    // Form submit
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadPhotos();
+    });
+    
+    function handleFiles(files) {
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            
+            // Validate type
+            if (!validTypes.includes(file.type) && !file.name.toLowerCase().endsWith('.heic')) {
+                alert('Please upload only JPG, PNG, or WebP images.');
+                continue;
+            }
+            
+            // Validate size
+            if (file.size > maxSize) {
+                alert('File "' + file.name + '" is too large. Maximum size is 10MB.');
+                continue;
+            }
+            
+            // Add to selected files
+            selectedFiles.push(file);
+        }
+        
+        updatePreview();
+    }
+    
+    function updatePreview() {
+        previewGrid.innerHTML = '';
+        
+        if (selectedFiles.length === 0) {
+            uploadPreview.classList.add('hidden');
+            uploadBtn.disabled = true;
+            return;
+        }
+        
+        uploadPreview.classList.remove('hidden');
+        uploadBtn.disabled = false;
+        
+        selectedFiles.forEach(function(file, index) {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.type = 'button';
+            removeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                selectedFiles.splice(index, 1);
+                updatePreview();
+            });
+            
+            item.appendChild(img);
+            item.appendChild(removeBtn);
+            previewGrid.appendChild(item);
+        });
+    }
+    
+    function clearAllFiles() {
+        selectedFiles = [];
+        photoInput.value = '';
+        updatePreview();
+    }
+    
+    async function uploadPhotos() {
+        const uploaderName = document.getElementById('uploaderName').value.trim();
+        const caption = document.getElementById('photoCaption').value.trim();
+        
+        if (!uploaderName) {
+            alert('Please enter your name.');
+            return;
+        }
+        
+        if (selectedFiles.length === 0) {
+            alert('Please select at least one photo.');
+            return;
+        }
+        
+        uploadBtn.classList.add('uploading');
+        uploadBtn.disabled = true;
+        
+        if (typeof supabase !== 'undefined') {
+            try {
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const file = selectedFiles[i];
+                    const fileName = Date.now() + '_' + Math.random().toString(36).substr(2, 9) + '_' + file.name;
+                    
+                    // Upload to Supabase Storage
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('wedding-photos')
+                        .upload(fileName, file);
+                    
+                    if (uploadError) {
+                        console.error('Upload error:', uploadError);
+                        continue;
+                    }
+                    
+                    // Get public URL
+                    const { data: urlData } = supabase.storage
+                        .from('wedding-photos')
+                        .getPublicUrl(fileName);
+                    
+                    // Save metadata to database
+                    await supabase.from('shared_photos').insert([{
+                        file_path: fileName,
+                        file_url: urlData.publicUrl,
+                        uploader_name: uploaderName,
+                        caption: caption || null
+                    }]);
+                }
+                
+                showUploadSuccess();
+                loadSharedPhotos(); // Refresh the gallery
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('There was an error uploading your photos. Please try again.');
+                uploadBtn.classList.remove('uploading');
+                uploadBtn.disabled = false;
+            }
+        } else {
+            // Demo mode
+            console.log('Demo upload:', {
+                files: selectedFiles.map(function(f) { return f.name; }),
+                uploader: uploaderName,
+                caption: caption
+            });
+            
+            // Simulate upload delay
+            setTimeout(function() {
+                showUploadSuccess();
+            }, 1500);
+        }
+    }
+    
+    function showUploadSuccess() {
+        uploadBtn.classList.remove('uploading');
+        uploadBtn.disabled = false;
+        uploadForm.classList.add('hidden');
+        uploadSuccess.classList.remove('hidden');
+        document.getElementById('uploaderName').value = '';
+        document.getElementById('photoCaption').value = '';
+        clearAllFiles();
+    }
+}
+
+/**
+ * Load shared photos from database
+ */
+let photosOffset = 0;
+const photosLimit = 12;
+
+async function loadSharedPhotos(loadMore) {
+    const grid = document.getElementById('sharedPhotosGrid');
+    const noPhotosMessage = document.getElementById('noPhotosMessage');
+    const loadMoreBtn = document.getElementById('loadMorePhotos');
+    
+    if (!grid) return;
+    
+    if (!loadMore) {
+        photosOffset = 0;
+    }
+    
+    if (typeof supabase !== 'undefined') {
+        try {
+            const { data, error } = await supabase
+                .from('shared_photos')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .range(photosOffset, photosOffset + photosLimit - 1);
+            
+            if (error) {
+                console.error('Error loading photos:', error);
+                return;
+            }
+            
+            if (data && data.length > 0) {
+                noPhotosMessage.style.display = 'none';
+                
+                if (!loadMore) {
+                    // Clear existing photos except the message
+                    const existingPhotos = grid.querySelectorAll('.shared-photo-item');
+                    existingPhotos.forEach(function(p) { p.remove(); });
+                }
+                
+                data.forEach(function(photo) {
+                    const item = createSharedPhotoItem(photo);
+                    grid.appendChild(item);
+                });
+                
+                photosOffset += data.length;
+                
+                // Show/hide load more button
+                if (data.length === photosLimit) {
+                    loadMoreBtn.classList.remove('hidden');
+                } else {
+                    loadMoreBtn.classList.add('hidden');
+                }
+            } else if (!loadMore) {
+                noPhotosMessage.style.display = 'block';
+                loadMoreBtn.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error loading photos:', error);
+        }
+    }
+    
+    // Set up load more button
+    if (loadMoreBtn && !loadMoreBtn.hasListener) {
+        loadMoreBtn.addEventListener('click', function() {
+            loadSharedPhotos(true);
+        });
+        loadMoreBtn.hasListener = true;
+    }
+}
+
+function createSharedPhotoItem(photo) {
+    const item = document.createElement('div');
+    item.className = 'shared-photo-item';
+    
+    const img = document.createElement('img');
+    img.src = photo.file_url;
+    img.alt = photo.caption || 'Shared by ' + photo.uploader_name;
+    img.loading = 'lazy';
+    
+    const info = document.createElement('div');
+    info.className = 'shared-photo-info';
+    
+    const name = document.createElement('div');
+    name.className = 'shared-photo-name';
+    name.textContent = photo.uploader_name;
+    info.appendChild(name);
+    
+    if (photo.caption) {
+        const caption = document.createElement('div');
+        caption.className = 'shared-photo-caption';
+        caption.textContent = photo.caption;
+        info.appendChild(caption);
+    }
+    
+    item.appendChild(img);
+    item.appendChild(info);
+    
+    // Click to open in lightbox
+    item.addEventListener('click', function() {
+        openSharedPhotoLightbox(photo);
+    });
+    
+    return item;
+}
+
+function openSharedPhotoLightbox(photo) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxCaption = document.getElementById('lightboxCaption');
+    
+    if (!lightbox) return;
+    
+    lightboxImg.src = photo.file_url;
+    lightboxCaption.textContent = photo.caption ? 
+        photo.caption + ' - ' + photo.uploader_name : 
+        'Shared by ' + photo.uploader_name;
+    
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Hide prev/next for single photo view
+    document.querySelector('.lightbox-prev').style.display = 'none';
+    document.querySelector('.lightbox-next').style.display = 'none';
 }

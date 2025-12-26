@@ -1458,6 +1458,293 @@ a {
 }
 
 /* ============================================
+   Photo Sharing Section
+   ============================================ */
+.photos {
+    background: 
+        radial-gradient(circle at 30% 70%, rgba(196, 120, 91, 0.06) 0%, transparent 40%),
+        linear-gradient(180deg, #F5F0E8 0%, var(--color-cream) 100%);
+}
+
+.photo-upload-card {
+    max-width: 600px;
+    margin: 48px auto 0;
+}
+
+.photo-upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Upload Zone */
+.upload-zone {
+    border: 2px dashed rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+    border-color: var(--color-olive);
+    background: rgba(107, 123, 92, 0.05);
+}
+
+.upload-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    color: var(--color-text-light);
+}
+
+.upload-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.upload-text {
+    color: var(--color-text);
+    margin-bottom: 8px;
+}
+
+.upload-browse {
+    color: var(--color-olive);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.upload-hint {
+    font-size: 0.875rem;
+    color: var(--color-text-light);
+}
+
+/* Upload Preview */
+.upload-preview {
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+}
+
+.upload-preview.hidden {
+    display: none;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.preview-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-item .remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-item .remove-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.clear-btn {
+    font-family: var(--font-primary);
+    font-size: 0.8125rem;
+    color: var(--color-text-light);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.clear-btn:hover {
+    color: var(--color-text);
+}
+
+/* Upload Button States */
+.submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.submit-btn.uploading {
+    position: relative;
+    color: transparent;
+}
+
+.submit-btn.uploading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Upload Success */
+.upload-success {
+    text-align: center;
+    padding: 48px 24px;
+}
+
+.upload-success.hidden {
+    display: none;
+}
+
+.upload-success h3 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.upload-success p {
+    color: var(--color-text-light);
+    margin-bottom: 24px;
+}
+
+/* Shared Photos Section */
+.shared-photos-section {
+    margin-top: 80px;
+}
+
+.shared-photos-title {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 32px;
+    color: var(--color-text);
+}
+
+.shared-photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.no-photos-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--color-text-light);
+    font-style: italic;
+    padding: 48px 24px;
+}
+
+.shared-photo-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.shared-photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.shared-photo-item:hover img {
+    transform: scale(1.05);
+}
+
+.shared-photo-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    color: white;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.shared-photo-item:hover .shared-photo-info {
+    transform: translateY(0);
+}
+
+.shared-photo-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.shared-photo-caption {
+    font-size: 0.8125rem;
+    opacity: 0.8;
+    margin-top: 2px;
+}
+
+.load-more-btn {
+    display: block;
+    margin: 32px auto 0;
+    padding: 14px 32px;
+    font-family: var(--font-primary);
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--color-olive);
+    border: 1px solid var(--color-olive);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.load-more-btn:hover {
+    background: var(--color-olive);
+    color: white;
+}
+
+.load-more-btn.hidden {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .shared-photos-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .preview-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ============================================
    Footer
    ============================================ */
 .footer {
