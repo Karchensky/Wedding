@@ -116,7 +116,7 @@ function initRSVPForm() {
             guest_count: parseInt(formData.get('guestCount')) || 1,
             guest_names: formData.get('guestNames') || '',
             dietary_restrictions: formData.get('dietary') || '',
-            castle_stay: formData.get('castleStay') === 'on',
+            castle_stay: formData.get('castleStay') === 'yes',
             message: formData.get('message') || '',
             submitted_at: new Date().toISOString()
         };

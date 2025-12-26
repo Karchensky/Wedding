@@ -445,11 +445,20 @@
                     </div>
 
                     <div class="form-group attending-details">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="castleStay" id="castleStay">
-                            <span class="checkbox-custom"></span>
-                            I would prefer to stay at Castello del Trebbio ($500 for 3 nights, all meals included)
-                        </label>
+                        <label>Accommodation Preference</label>
+                        <p class="form-hint">The castle accommodates 51 guests. We may adjust based on final attendance.</p>
+                        <div class="radio-group radio-group-vertical">
+                            <label class="radio-label">
+                                <input type="radio" name="castleStay" value="yes" required>
+                                <span class="radio-custom"></span>
+                                I would prefer to stay at the castle ($500 for 3 nights, all meals included)
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="castleStay" value="no" required>
+                                <span class="radio-custom"></span>
+                                I would prefer to stay off-site
+                            </label>
+                        </div>
                     </div>
 
                     <div class="form-group">
