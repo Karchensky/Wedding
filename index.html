@@ -30,6 +30,7 @@
                 <li><a href="#accommodations">Stay</a></li>
                 <li><a href="#travel">Travel</a></li>
                 <li><a href="#explore">Explore</a></li>
+                <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#rsvp">RSVP</a></li>
             </ul>
         </div>
@@ -62,12 +63,6 @@
                     <p>We are overjoyed to celebrate our wedding with you at the historic Castello del Trebbio, nestled in the heart of Tuscany. This 12th-century castle, surrounded by rolling vineyards and olive groves, will be the backdrop for our celebration.</p>
                 </div>
                 
-                <div class="venue-gallery">
-                    <img src="https://www.visittuscany.com/shared/visittuscany/immagini/elementi/trebbio-frankenstein-photo-stefano-casati-000049.jpg" alt="Castello del Trebbio exterior" class="venue-img">
-                    <img src="https://lh3.googleusercontent.com/gps-cs-s/AG0ilSx3qIxHCgVBcB3ZsAQXc_wk1iBj6xgTXGBGG-3ZkhsL9t0oqVf79-DcNjzG7vQ3qDjPtFFmzzLIqC3MQkr0O4eFLqj-vO1IeSvSsnQQZcmIGiP1JzYVAoOML-zcemhTfa0702590_c_6I8=s680-w680-h510-rw" alt="Castello del Trebbio interior" class="venue-img">
-                    <img src="https://www.castellodeltrebbio.it/wp-content/uploads/2020/02/matrimoni-agriturismo-toscana-2-800x533.jpg" alt="Wedding reception setup" class="venue-img">
-                    <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/10/74/c0/f4/castello-del-trebbio.jpg?w=900&h=500&s=1" alt="Castello del Trebbio vineyards" class="venue-img">
-                </div>
                 
                 <div class="details-grid">
                     <div class="detail-item">
@@ -391,6 +386,70 @@
         </div>
     </section>
 
+    <!-- Gallery -->
+    <section id="gallery" class="section gallery">
+        <div class="container">
+            <h2 class="section-title">The Venue</h2>
+            <p class="section-subtitle">Castello del Trebbio - a 12th-century castle in the heart of Tuscany</p>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item" data-index="0">
+                    <img src="https://www.chiantirufina.com/wp-content/uploads/2017/03/bellavistacastello.jpg">
+                    <div class="gallery-overlay">
+                        <span>View</span>
+                    </div>
+                </div>
+                <div class="gallery-item" data-index="1">
+                    <img src="https://www.visittuscany.com/shared/visittuscany/immagini/elementi/trebbio-frankenstein-photo-stefano-casati-000049.jpg">
+                    <div class="gallery-overlay">
+                        <span>View</span>
+                    </div>
+                </div>
+                <div class="gallery-item" data-index="2">
+                    <img src="https://lh3.googleusercontent.com/gps-cs-s/AG0ilSz_ji-VcQ49D0Db2_8mxqCYZ588n2pFi-8n1hyr_O6k-C_e2rEQ01saWkoVTQ-GjBjRxtSS1yWPiuoOu6bZ-Q-yGrv_v9r2MbESwWwP_tOaCYEKmuRkEONqGavaYBTyca5DwkEl=w900-h500">
+                    <div class="gallery-overlay">
+                        <span>View</span>
+                    </div>
+                </div>
+                <div class="gallery-item" data-index="3">
+                    <img src="https://lh3.googleusercontent.com/gps-cs-s/AG0ilSznEDj8cOvEe1q1-mczbj3eVDpLCLNnxhFldKqjdtOYrbkhp0pkucRMjXiBsFNqgWUDVtClc4O3xyytSVSBt-9-xOmIqI1IcRTtnGol4loNtc1VwD91-STINrGYSe91rXlWIsDMnQ=w900-h500">
+                    <div class="gallery-overlay">
+                        <span>View</span>
+                    </div>
+                </div>
+                <div class="gallery-item" data-index="4">
+                    <img src="https://lh3.googleusercontent.com/gps-cs-s/AG0ilSx3qIxHCgVBcB3ZsAQXc_wk1iBj6xgTXGBGG-3ZkhsL9t0oqVf79-DcNjzG7vQ3qDjPtFFmzzLIqC3MQkr0O4eFLqj-vO1IeSvSsnQQZcmIGiP1JzYVAoOML-zcemhTfa0702590_c_6I8=s680-w680-h510-rw">
+                    <div class="gallery-overlay">
+                        <span>View</span>
+                    </div>
+                </div>
+                <div class="gallery-item" data-index="5">
+                    <img src="https://www.castellodeltrebbio.it/wp-content/uploads/2020/02/matrimoni-agriturismo-toscana-2-800x533.jpg">
+                    <div class="gallery-overlay">
+                        <span>View</span>
+                    </div>
+                </div>
+                <div class="gallery-item" data-index="6">
+                    <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/10/74/c0/f4/castello-del-trebbio.jpg?w=900&h=500&s=1">
+                    <div class="gallery-overlay">
+                        <span>View</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <button class="lightbox-close" aria-label="Close">&times;</button>
+        <button class="lightbox-prev" aria-label="Previous">&lsaquo;</button>
+        <button class="lightbox-next" aria-label="Next">&rsaquo;</button>
+        <div class="lightbox-content">
+            <img id="lightboxImg" src="" alt="">
+            <p id="lightboxCaption" class="lightbox-caption"></p>
+        </div>
+    </div>
+
     <!-- RSVP -->
     <section id="rsvp" class="section rsvp">
         <div class="container">
@@ -398,85 +457,95 @@
             <p class="section-subtitle">Please respond by March 1, 2027</p>
 
             <div class="glass-card rsvp-card">
-                <form id="rsvpForm" class="rsvp-form">
-                    <div class="form-row">
+                <!-- Step 1: Lookup -->
+                <div id="rsvpLookup" class="rsvp-step">
+                    <p class="rsvp-intro">Enter your invitation code or search by last name to find your invitation.</p>
+                    
+                    <div class="lookup-tabs">
+                        <button type="button" class="lookup-tab active" data-tab="code">Invitation Code</button>
+                        <button type="button" class="lookup-tab" data-tab="name">Search by Name</button>
+                    </div>
+
+                    <form id="lookupCodeForm" class="lookup-form">
                         <div class="form-group">
-                            <label for="firstName">First Name</label>
-                            <input type="text" id="firstName" name="firstName" required>
+                            <label for="inviteCode">Invitation Code</label>
+                            <input type="text" id="inviteCode" name="inviteCode" placeholder="e.g., ABC123" maxlength="10" style="text-transform: uppercase;">
                         </div>
+                        <button type="submit" class="submit-btn">Find My Invitation</button>
+                    </form>
+
+                    <form id="lookupNameForm" class="lookup-form hidden">
                         <div class="form-group">
-                            <label for="lastName">Last Name</label>
-                            <input type="text" id="lastName" name="lastName" required>
+                            <label for="lookupLastName">Last Name</label>
+                            <input type="text" id="lookupLastName" name="lookupLastName" placeholder="Enter your last name">
                         </div>
+                        <button type="submit" class="submit-btn">Search</button>
+                    </form>
+
+                    <div id="lookupError" class="lookup-error hidden">
+                        <p>We couldn't find that invitation. Please check your code or try searching by name.</p>
                     </div>
 
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
+                    <div id="lookupResults" class="lookup-results hidden">
+                        <p>We found the following invitations:</p>
+                        <div id="resultsList" class="results-list"></div>
+                    </div>
+                </div>
+
+                <!-- Step 2: RSVP Form (shown after lookup) -->
+                <div id="rsvpFormStep" class="rsvp-step hidden">
+                    <div id="invitationHeader" class="invitation-header">
+                        <h3 id="partyName">Welcome!</h3>
+                        <p id="partyInfo" class="party-info"></p>
+                        <button type="button" id="changeInvitation" class="change-btn">Not you? Search again</button>
                     </div>
 
-                    <div class="form-group">
-                        <label>Will you be attending?</label>
-                        <div class="radio-group">
-                            <label class="radio-label">
-                                <input type="radio" name="attending" value="yes" required>
-                                <span class="radio-custom"></span>
-                                Joyfully Accept
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="attending" value="no" required>
-                                <span class="radio-custom"></span>
-                                Regretfully Decline
-                            </label>
+                    <form id="rsvpForm" class="rsvp-form">
+                        <input type="hidden" id="invitationId" name="invitationId">
+                        <input type="hidden" id="invitationCode" name="invitationCode">
+
+                        <div id="guestList" class="guest-list">
+                            <!-- Guest cards will be inserted here dynamically -->
                         </div>
-                    </div>
 
-                    <div class="form-group attending-details" id="attendingDetails">
-                        <label for="guestCount">Number of Guests (including yourself)</label>
-                        <select id="guestCount" name="guestCount">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group attending-details" id="guestNamesGroup">
-                        <label for="guestNames">Names of Additional Guests</label>
-                        <input type="text" id="guestNames" name="guestNames" placeholder="Please list all guest names">
-                    </div>
-
-                    <div class="form-group attending-details">
-                        <label for="dietary">Dietary Restrictions</label>
-                        <textarea id="dietary" name="dietary" placeholder="Please list any allergies or dietary requirements"></textarea>
-                    </div>
-
-                    <div class="form-group attending-details">
-                        <label>Accommodation Preference</label>
-                        <p class="form-hint">The castle accommodates 51 guests. We may adjust based on final attendance.</p>
-                        <div class="radio-group radio-group-vertical">
-                            <label class="radio-label">
-                                <input type="radio" name="castleStay" value="yes" required>
-                                <span class="radio-custom"></span>
-                                I would prefer to stay at the castle ($500 for 3 nights, all meals included)
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="castleStay" value="no" required>
-                                <span class="radio-custom"></span>
-                                I would prefer to stay off-site
-                            </label>
+                        <div class="form-group" id="dietaryGroup">
+                            <label for="dietary">Dietary Restrictions or Allergies</label>
+                            <textarea id="dietary" name="dietary" placeholder="Please list any allergies or dietary requirements for your party"></textarea>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="message">Message for the Couple (Optional)</label>
-                        <textarea id="message" name="message" placeholder="We'd love to hear from you"></textarea>
-                    </div>
+                        <div class="form-group" id="castleGroup">
+                            <label>Accommodation Preference</label>
+                            <p class="form-hint">The castle accommodates 51 guests. We may adjust based on final attendance.</p>
+                            <div class="radio-group radio-group-vertical">
+                                <label class="radio-label">
+                                    <input type="radio" name="castleStay" value="yes" required>
+                                    <span class="radio-custom"></span>
+                                    We would prefer to stay at the castle ($500/room for 3 nights, all meals included)
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="castleStay" value="no" required>
+                                    <span class="radio-custom"></span>
+                                    We would prefer to stay off-site
+                                </label>
+                            </div>
+                        </div>
 
-                    <button type="submit" class="submit-btn">Send RSVP</button>
-                </form>
+                        <div class="form-group">
+                            <label for="email">Email Address (for updates)</label>
+                            <input type="email" id="email" name="email" required placeholder="your@email.com">
+                        </div>
 
-                <div id="rsvpSuccess" class="rsvp-success hidden">
+                        <div class="form-group">
+                            <label for="message">Message for Bryan & Emily (Optional)</label>
+                            <textarea id="message" name="message" placeholder="We'd love to hear from you"></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Submit RSVP</button>
+                    </form>
+                </div>
+
+                <!-- Step 3: Success -->
+                <div id="rsvpSuccess" class="rsvp-step rsvp-success hidden">
                     <div class="success-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -484,7 +553,7 @@
                         </svg>
                     </div>
                     <h3>Thank You!</h3>
-                    <p>Your RSVP has been received. We will be in touch with more details soon.</p>
+                    <p id="successMessage">Your RSVP has been received. We will be in touch with more details soon.</p>
                 </div>
             </div>
         </div>
