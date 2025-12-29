@@ -483,7 +483,16 @@
         
         async function loadAllData() {
             // Load invitations first (needed for RSVP join)
-            await loadInvitations();
+            const invSuccess = await loadInvitations();
+            if (!invSuccess) {
+                // Password was wrong - go back to login
+                sessionStorage.removeItem('adminAuth');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('dashboard').classList.remove('active');
+                document.getElementById('loginError').textContent = 'Invalid admin password';
+                document.getElementById('loginError').style.display = 'block';
+                return;
+            }
             // Then load RSVPs and photos in parallel
             await Promise.all([
                 loadRSVPs(),
@@ -495,7 +504,7 @@
         async function loadInvitations() {
             if (!supabaseClient) {
                 console.error('Supabase client not initialized');
-                return;
+                return false;
             }
             
             try {
@@ -505,15 +514,20 @@
                 
                 if (error) {
                     console.error('Error loading invitations:', error);
-                    return;
+                    // Check if it's a password error
+                    if (error.message && error.message.includes('Invalid admin password')) {
+                        return false;
+                    }
+                    return false;
                 }
                 
                 if (data) {
                     allInvitations = data;
-                    console.log('Loaded invitations:', data.length);
                 }
+                return true;
             } catch (err) {
                 console.error('Exception loading invitations:', err);
+                return false;
             }
         }
         

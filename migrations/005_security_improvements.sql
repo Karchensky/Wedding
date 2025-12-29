@@ -80,6 +80,7 @@ $$;
 -- ============================================
 DROP POLICY IF EXISTS "invitations_anon_read" ON invitations;
 DROP POLICY IF EXISTS "invitations_lookup_by_code" ON invitations;
+DROP POLICY IF EXISTS "invitations_auth_read" ON invitations;
 
 -- Only authenticated users (admin) can directly query invitations
 CREATE POLICY "invitations_auth_read" ON invitations 

@@ -1,5 +1,3 @@
-```
-# Wedding Website - Castello del Trebbio
+# Bryan & Emily's Wedding Website
 
-Codebase for hosting a quick website for our wedding. Includes database for RSVP & picture upload.
-```
+Quick codebase for hosting a website for our wedding. Includes database for RSVP & picture upload.
