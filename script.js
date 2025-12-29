@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initRSVPLookup();
     initScrollEffects();
     initGalleryLightbox();
+    initLightboxSwipe();
     initPhotoUpload();
     
     // Check for invitation code in URL
@@ -622,8 +623,14 @@ function updateGalleryLightboxImage() {
         lightboxImg.style.opacity = '1';
     }, 150);
 }
+
+/**
+ * Touch swipe support for lightbox - initialized separately
+ */
+function initLightboxSwipe() {
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox) return;
     
-    // Touch swipe support
     let touchStartX = 0;
     let touchEndX = 0;
     
@@ -633,21 +640,17 @@ function updateGalleryLightboxImage() {
     
     lightbox.addEventListener('touchend', function(e) {
         touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    }, { passive: true });
-    
-    function handleSwipe() {
         const swipeThreshold = 50;
         const diff = touchStartX - touchEndX;
         
         if (Math.abs(diff) > swipeThreshold) {
             if (diff > 0) {
-                showNext(); // Swipe left = next
+                handleNext();
             } else {
-                showPrev(); // Swipe right = prev
+                handlePrev();
             }
         }
-    }
+    }, { passive: true });
 }
 
 /**

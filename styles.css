@@ -1670,31 +1670,62 @@ a {
 }
 
 .photo-filter-wrapper {
-    max-width: 400px;
-    margin: 0 auto 32px;
+    max-width: 360px;
+    margin: 0 auto 40px;
+    position: relative;
+}
+
+.photo-filter-wrapper::before {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(0, 0, 0, 0.35);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.photo-filter-wrapper::after {
+    content: "";
+    position: absolute;
+    left: 29px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 2px;
+    height: 7px;
+    background: rgba(0, 0, 0, 0.35);
+    margin-top: 6px;
+    pointer-events: none;
 }
 
 .photo-filter-input {
     width: 100%;
-    padding: 12px 20px;
-    font-size: 1rem;
+    padding: 14px 20px 14px 44px;
+    font-size: 0.95rem;
     font-family: var(--font-body);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--color-text);
+    letter-spacing: 0.02em;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #333;
     transition: all 0.3s ease;
 }
 
 .photo-filter-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(0, 0, 0, 0.4);
+    font-style: italic;
 }
 
 .photo-filter-input:focus {
     outline: none;
-    border-color: var(--color-primary);
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.15);
+    border-color: rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .shared-photos-grid {
