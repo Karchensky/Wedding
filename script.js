@@ -144,18 +144,17 @@ async function lookupByCode(code) {
     
     if (supabaseClient) {
         try {
+            // Use RPC function for secure lookup (prevents listing all invitations)
             const { data, error } = await supabaseClient
-                .from('invitations')
-                .select('*')
-                .eq('code', code.toUpperCase())
-                .single();
+                .rpc('lookup_invitation', { lookup_code: code.toUpperCase() });
             
-            if (error || !data) {
+            if (error || !data || data.length === 0) {
                 showError();
                 return;
             }
             
-            selectInvitation(data);
+            // RPC returns array, get first result
+            selectInvitation(data[0]);
         } catch (error) {
             console.error('Lookup error:', error);
             showError();
@@ -359,12 +358,10 @@ async function submitRSVP() {
     // Submit to Supabase or demo mode
     if (supabaseClient) {
         try {
-            // First check if RSVP exists
-            const { data: existing } = await supabaseClient
-                .from('rsvps')
-                .select('id')
-                .eq('invitation_id', currentInvitation.id)
-                .maybeSingle();
+            // First check if RSVP exists (using RPC for security)
+            const { data: existingArr } = await supabaseClient
+                .rpc('get_rsvp_by_invitation', { inv_id: currentInvitation.id });
+            const existing = existingArr && existingArr.length > 0 ? existingArr[0] : null;
             
             console.log('Existing RSVP:', existing);
             
