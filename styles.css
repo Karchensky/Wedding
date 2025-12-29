@@ -590,6 +590,28 @@ a {
     color: var(--color-text-light);
 }
 
+.accommodation-note-card {
+    max-width: 800px;
+    margin: 40px auto 0;
+    text-align: center;
+}
+
+.accommodation-note-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    color: var(--color-olive);
+}
+
+.accommodation-note-card p {
+    margin-bottom: 12px;
+    line-height: 1.7;
+}
+
+.accommodation-note-card p:last-child {
+    margin-bottom: 0;
+}
+
 .accommodations-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

@@ -104,53 +104,20 @@ function checkURLForCode() {
  * RSVP Lookup and Form functionality
  */
 function initRSVPLookup() {
-    const lookupTabs = document.querySelectorAll('.lookup-tab');
     const codeForm = document.getElementById('lookupCodeForm');
-    const nameForm = document.getElementById('lookupNameForm');
     const rsvpForm = document.getElementById('rsvpForm');
     const changeBtn = document.getElementById('changeInvitation');
     
-    // Tab switching
-    lookupTabs.forEach(function(tab) {
-        tab.addEventListener('click', function() {
-            const tabType = this.dataset.tab;
-            
-            // Update active tab
-            lookupTabs.forEach(function(t) { t.classList.remove('active'); });
-            this.classList.add('active');
-            
-            // Show/hide forms
-            if (tabType === 'code') {
-                codeForm.classList.remove('hidden');
-                nameForm.classList.add('hidden');
-            } else {
-                codeForm.classList.add('hidden');
-                nameForm.classList.remove('hidden');
-            }
-            
-            // Clear errors and results
-            hideError();
-            hideResults();
-        });
-    });
-    
     // Code lookup form
-    codeForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const code = document.getElementById('inviteCode').value.trim().toUpperCase();
-        if (code) {
-            lookupByCode(code);
-        }
-    });
-    
-    // Name lookup form
-    nameForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const lastName = document.getElementById('lookupLastName').value.trim();
-        if (lastName) {
-            lookupByName(lastName);
-        }
-    });
+    if (codeForm) {
+        codeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const code = document.getElementById('inviteCode').value.trim().toUpperCase();
+            if (code) {
+                lookupByCode(code);
+            }
+        });
+    }
     
     // Change invitation button
     if (changeBtn) {
@@ -173,17 +140,14 @@ function initRSVPLookup() {
  */
 async function lookupByCode(code) {
     hideError();
-    hideResults();
     
-    if (supabase) {
+    if (supabaseClient) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('invitations')
                 .select('*')
                 .eq('code', code.toUpperCase())
                 .single();
-            
-            console.log('Code lookup result:', { code, data, error });
             
             if (error || !data) {
                 showError();
@@ -196,7 +160,6 @@ async function lookupByCode(code) {
             showError();
         }
     } else {
-        console.log('Supabase not available, using demo mode');
         // Demo mode: use sample data
         const demoInvitations = getDemoInvitations();
         const found = demoInvitations.find(function(inv) { 
@@ -211,113 +174,6 @@ async function lookupByCode(code) {
     }
 }
 
-/**
- * Lookup invitation by name (searches party_name and guest_names)
- */
-async function lookupByName(searchName) {
-    hideError();
-    hideResults();
-    
-    const searchLower = searchName.toLowerCase();
-    
-    // Filter function to check party_name and guest_names
-    function matchesSearch(inv) {
-        // Check party_name
-        if (inv.party_name.toLowerCase().includes(searchLower)) {
-            return true;
-        }
-        // Check each guest name in the array
-        if (inv.guest_names && Array.isArray(inv.guest_names)) {
-            return inv.guest_names.some(function(name) {
-                return name.toLowerCase().includes(searchLower);
-            });
-        }
-        return false;
-    }
-    
-    if (supabase) {
-        try {
-            // Fetch all invitations and filter client-side
-            const { data, error } = await supabase
-                .from('invitations')
-                .select('*');
-            
-            console.log('Name search results:', { data, error, searchName });
-            
-            if (error) {
-                console.error('Lookup error:', error);
-                showError();
-                return;
-            }
-            
-            const matches = (data || []).filter(matchesSearch);
-            console.log('Filtered matches:', matches);
-            
-            if (matches.length === 0) {
-                showError();
-            } else if (matches.length === 1) {
-                selectInvitation(matches[0]);
-            } else {
-                showResults(matches);
-            }
-        } catch (error) {
-            console.error('Lookup error:', error);
-            showError();
-        }
-    } else {
-        console.log('Supabase not available, using demo mode');
-        // Demo mode
-        const demoInvitations = getDemoInvitations();
-        const matches = demoInvitations.filter(matchesSearch);
-        
-        if (matches.length === 0) {
-            showError();
-        } else if (matches.length === 1) {
-            selectInvitation(matches[0]);
-        } else {
-            showResults(matches);
-        }
-    }
-}
-
-/**
- * Show search results for multiple matches
- */
-function showResults(invitations) {
-    const resultsContainer = document.getElementById('lookupResults');
-    const resultsList = document.getElementById('resultsList');
-    
-    resultsList.innerHTML = '';
-    
-    invitations.forEach(function(inv) {
-        const item = document.createElement('div');
-        item.className = 'result-item';
-        item.innerHTML = 
-            '<div class="result-item-info">' +
-                '<span class="result-item-name">' + inv.party_name + '</span>' +
-                '<span class="result-item-size">Party of ' + inv.party_size + '</span>' +
-            '</div>' +
-            '<button type="button">Select</button>';
-        
-        item.querySelector('button').addEventListener('click', function() {
-            selectInvitation(inv);
-        });
-        
-        resultsList.appendChild(item);
-    });
-    
-    resultsContainer.classList.remove('hidden');
-}
-
-/**
- * Hide search results
- */
-function hideResults() {
-    const resultsContainer = document.getElementById('lookupResults');
-    if (resultsContainer) {
-        resultsContainer.classList.add('hidden');
-    }
-}
 
 /**
  * Show error message
@@ -423,17 +279,17 @@ function resetToLookup() {
     
     // Clear forms
     document.getElementById('inviteCode').value = '';
-    document.getElementById('lookupLastName').value = '';
     document.getElementById('rsvpForm').reset();
     
     hideError();
-    hideResults();
 }
 
 /**
  * Submit the RSVP
  */
 async function submitRSVP() {
+    console.log('submitRSVP called');
+    
     if (!currentInvitation) {
         alert('Please select an invitation first.');
         return;
@@ -464,6 +320,8 @@ async function submitRSVP() {
         });
     });
     
+    console.log('Guest responses:', guestResponses, 'allAnswered:', allAnswered);
+    
     if (!allAnswered) {
         alert('Please indicate attendance for all guests in your party.');
         return;
@@ -471,8 +329,18 @@ async function submitRSVP() {
     
     // Get castle preference (only required if someone is attending)
     const castleRadio = document.querySelector('input[name="castleStay"]:checked');
+    console.log('Castle preference:', castleRadio?.value, 'anyAttending:', anyAttending);
+    
     if (anyAttending && !castleRadio) {
         alert('Please select your accommodation preference.');
+        return;
+    }
+    
+    const emailValue = document.getElementById('email').value;
+    console.log('Email:', emailValue);
+    
+    if (!emailValue) {
+        alert('Please enter your email address.');
         return;
     }
     
@@ -481,33 +349,47 @@ async function submitRSVP() {
         guest_responses: guestResponses,
         dietary_restrictions: document.getElementById('dietary').value || null,
         castle_preference: castleRadio ? castleRadio.value : null,
-        email: document.getElementById('email').value,
+        email: emailValue,
         message: document.getElementById('message').value || null
     };
     
+    console.log('Form data:', formData);
+    
     // Submit to Supabase or demo mode
-    if (supabase) {
+    if (supabaseClient) {
         try {
-            // Check if RSVP already exists (for updates)
-            const { data: existing } = await supabase
+            // First check if RSVP exists
+            const { data: existing } = await supabaseClient
                 .from('rsvps')
                 .select('id')
                 .eq('invitation_id', currentInvitation.id)
-                .single();
+                .maybeSingle();
+            
+            console.log('Existing RSVP:', existing);
             
             let result;
             if (existing) {
-                // Update existing RSVP
-                result = await supabase
+                // Update existing
+                console.log('Updating existing RSVP');
+                result = await supabaseClient
                     .from('rsvps')
-                    .update(formData)
+                    .update({
+                        guest_responses: guestResponses,
+                        dietary_restrictions: formData.dietary_restrictions,
+                        castle_preference: formData.castle_preference,
+                        email: formData.email,
+                        message: formData.message
+                    })
                     .eq('invitation_id', currentInvitation.id);
             } else {
-                // Insert new RSVP
-                result = await supabase
+                // Insert new
+                console.log('Inserting new RSVP');
+                result = await supabaseClient
                     .from('rsvps')
                     .insert([formData]);
             }
+            
+            console.log('Result:', result);
             
             if (result.error) {
                 console.error('RSVP error:', result.error);
@@ -518,11 +400,11 @@ async function submitRSVP() {
             showSuccess(guestResponses, anyAttending);
         } catch (error) {
             console.error('RSVP error:', error);
-            showSuccess(guestResponses, anyAttending); // Show success anyway for demo
+            alert('There was an error submitting your RSVP. Please try again.');
         }
     } else {
         // Demo mode
-        console.log('RSVP Data:', formData);
+        console.log('Demo mode - RSVP Data:', formData);
         showSuccess(guestResponses, anyAttending);
     }
 }
@@ -930,14 +812,14 @@ function initPhotoUpload() {
         uploadBtn.classList.add('uploading');
         uploadBtn.disabled = true;
         
-        if (supabase) {
+        if (supabaseClient) {
             try {
                 for (let i = 0; i < selectedFiles.length; i++) {
                     const file = selectedFiles[i];
                     const fileName = Date.now() + '_' + Math.random().toString(36).substr(2, 9) + '_' + file.name;
                     
                     // Upload to Supabase Storage
-                    const { data: uploadData, error: uploadError } = await supabase.storage
+                    const { data: uploadData, error: uploadError } = await supabaseClient.storage
                         .from('wedding-photos')
                         .upload(fileName, file);
                     
@@ -947,12 +829,12 @@ function initPhotoUpload() {
                     }
                     
                     // Get public URL
-                    const { data: urlData } = supabase.storage
+                    const { data: urlData } = supabaseClient.storage
                         .from('wedding-photos')
                         .getPublicUrl(fileName);
                     
                     // Save metadata to database
-                    await supabase.from('shared_photos').insert([{
+                    await supabaseClient.from('shared_photos').insert([{
                         file_path: fileName,
                         file_url: urlData.publicUrl,
                         uploader_name: uploaderName,
@@ -1011,9 +893,9 @@ async function loadSharedPhotos(loadMore) {
         photosOffset = 0;
     }
     
-    if (supabase) {
+    if (supabaseClient) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('shared_photos')
                 .select('*')
                 .order('created_at', { ascending: false })

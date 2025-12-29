@@ -102,15 +102,11 @@
                         <h3>Welcome to Tuscany</h3>
                         <div class="timeline-events">
                             <div class="event">
-                                <span class="event-time">Afternoon</span>
+                                <span class="event-time">3:45 PM</span>
                                 <span class="event-name">Guest Arrival & Check-in</span>
                             </div>
                             <div class="event">
-                                <span class="event-time">3:00 - 5:00 PM</span>
-                                <span class="event-name">Welcome & Settle In</span>
-                            </div>
-                            <div class="event">
-                                <span class="event-time">6:00 - 9:00 PM</span>
+                                <span class="event-time">6:00 PM</span>
                                 <span class="event-name">Castle Tour, Wine Tasting & Welcome Dinner</span>
                             </div>
                         </div>
@@ -123,19 +119,19 @@
                         <h3>The Wedding</h3>
                         <div class="timeline-events">
                             <div class="event">
-                                <span class="event-time">Morning</span>
-                                <span class="event-name">Breakfast at the Castle</span>
+                                <span class="event-time">8:30 AM</span>
+                                <span class="event-name">Breakfast</span>
                             </div>
                             <div class="event">
                                 <span class="event-time">Daytime</span>
                                 <span class="event-name">Relax & Get Ready</span>
                             </div>
                             <div class="event">
-                                <span class="event-time">4:00 PM</span>
+                                <span class="event-time">4:30 PM</span>
                                 <span class="event-name">Wedding Ceremony</span>
                             </div>
                             <div class="event">
-                                <span class="event-time">5:00 PM</span>
+                                <span class="event-time">5:30 PM</span>
                                 <span class="event-name">Cocktail Hour</span>
                             </div>
                             <div class="event">
@@ -143,7 +139,7 @@
                                 <span class="event-name">Reception Dinner</span>
                             </div>
                             <div class="event">
-                                <span class="event-time">Until 1:00 AM</span>
+                                <span class="event-time">Until 1:30 AM</span>
                                 <span class="event-name">Dancing & Celebration</span>
                             </div>
                         </div>
@@ -156,7 +152,7 @@
                         <h3>Recovery Day</h3>
                         <div class="timeline-events">
                             <div class="event">
-                                <span class="event-time">Morning</span>
+                                <span class="event-time">10:00 AM</span>
                                 <span class="event-name">Brunch</span>
                             </div>
                             <div class="event">
@@ -164,8 +160,8 @@
                                 <span class="event-name">Pool, Cooking Class, Hiking, or Relax</span>
                             </div>
                             <div class="event">
-                                <span class="event-time">Evening</span>
-                                <span class="event-name">Pizza Party</span>
+                                <span class="event-time">6:00 PM</span>
+                                <span class="event-name">Farewell Pizza Party</span>
                             </div>
                         </div>
                     </div>
@@ -177,11 +173,11 @@
                         <h3>Arrivederci</h3>
                         <div class="timeline-events">
                             <div class="event">
-                                <span class="event-time">Morning</span>
+                                <span class="event-time">8:30 AM</span>
                                 <span class="event-name">Breakfast</span>
                             </div>
                             <div class="event">
-                                <span class="event-time">Late Morning</span>
+                                <span class="event-time">10:00 AM</span>
                                 <span class="event-name">Check-out & Farewells</span>
                             </div>
                         </div>
@@ -215,23 +211,10 @@
                 </div>
             </div>
 
-            <h3 class="subsection-title">Nearby Alternatives</h3>
-            <div class="accommodations-grid">
-                <div class="glass-card accommodation-card">
-                    <h4>Hotel & Spa Relais Borgo Storico</h4>
-                    <p class="accommodation-location">Pontassieve, 10 min drive</p>
-                    <p>Charming boutique hotel with spa facilities and vineyard views.</p>
-                </div>
-                <div class="glass-card accommodation-card">
-                    <h4>Villa Olmi Firenze</h4>
-                    <p class="accommodation-location">Bagno a Ripoli, 20 min drive</p>
-                    <p>Historic Medici villa with elegant rooms and beautiful gardens.</p>
-                </div>
-                <div class="glass-card accommodation-card">
-                    <h4>Hotels in Florence</h4>
-                    <p class="accommodation-location">Florence, 30 min drive</p>
-                    <p>Many options available in the city center for those wanting urban amenities.</p>
-                </div>
+            <div class="glass-card accommodation-note-card">
+                <h3>Off-Site Accommodations</h3>
+                <p>Since we have the entire castle venue, our first priority is filling the on-site rooms (up to 51 guests). Once RSVPs are in and we know our final count, we will share off-site alternatives if needed.</p>
+                <p>The venue is just 30 minutes from Florence, which offers plenty of hotel options at various price points.</p>
             </div>
         </div>
     </section>
@@ -460,13 +443,8 @@
             <div class="glass-card rsvp-card">
                 <!-- Step 1: Lookup -->
                 <div id="rsvpLookup" class="rsvp-step">
-                    <p class="rsvp-intro">Enter your invitation code or search by last name to find your invitation.</p>
+                    <p class="rsvp-intro">Enter your invitation code to find your invitation.</p>
                     
-                    <div class="lookup-tabs">
-                        <button type="button" class="lookup-tab active" data-tab="code">Invitation Code</button>
-                        <button type="button" class="lookup-tab" data-tab="name">Search by Name</button>
-                    </div>
-
                     <form id="lookupCodeForm" class="lookup-form">
                         <div class="form-group">
                             <label for="inviteCode">Invitation Code</label>
@@ -475,21 +453,8 @@
                         <button type="submit" class="submit-btn">Find My Invitation</button>
                     </form>
 
-                    <form id="lookupNameForm" class="lookup-form hidden">
-                        <div class="form-group">
-                            <label for="lookupLastName">Your Name</label>
-                            <input type="text" id="lookupLastName" name="lookupLastName" placeholder="Enter your name or last name">
-                        </div>
-                        <button type="submit" class="submit-btn">Search</button>
-                    </form>
-
                     <div id="lookupError" class="lookup-error hidden">
-                        <p>We couldn't find that invitation. Please check your code or try searching by name.</p>
-                    </div>
-
-                    <div id="lookupResults" class="lookup-results hidden">
-                        <p>We found the following invitations:</p>
-                        <div id="resultsList" class="results-list"></div>
+                        <p>We couldn't find that invitation. Please check your code and try again.</p>
                     </div>
                 </div>
 

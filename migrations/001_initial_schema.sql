@@ -75,6 +75,7 @@ ALTER TABLE rsvps ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "rsvps_anon_insert" ON rsvps;
 DROP POLICY IF EXISTS "rsvps_anon_update" ON rsvps;
+DROP POLICY IF EXISTS "rsvps_anon_select" ON rsvps;
 DROP POLICY IF EXISTS "rsvps_auth_read" ON rsvps;
 DROP POLICY IF EXISTS "Allow anonymous inserts" ON rsvps;
 DROP POLICY IF EXISTS "Allow anonymous updates" ON rsvps;
@@ -82,7 +83,7 @@ DROP POLICY IF EXISTS "Allow authenticated reads" ON rsvps;
 
 CREATE POLICY "rsvps_anon_insert" ON rsvps FOR INSERT WITH CHECK (true);
 CREATE POLICY "rsvps_anon_update" ON rsvps FOR UPDATE USING (true);
-CREATE POLICY "rsvps_auth_read" ON rsvps FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "rsvps_anon_select" ON rsvps FOR SELECT USING (true);
 
 DROP TRIGGER IF EXISTS update_rsvps_updated_at ON rsvps;
 CREATE TRIGGER update_rsvps_updated_at 
