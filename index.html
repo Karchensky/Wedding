@@ -470,15 +470,15 @@
                     <form id="lookupCodeForm" class="lookup-form">
                         <div class="form-group">
                             <label for="inviteCode">Invitation Code</label>
-                            <input type="text" id="inviteCode" name="inviteCode" placeholder="e.g., ABC123" maxlength="10" style="text-transform: uppercase;">
+                            <input type="text" id="inviteCode" name="inviteCode" placeholder="e.g., SMITH01" maxlength="20" style="text-transform: uppercase;">
                         </div>
                         <button type="submit" class="submit-btn">Find My Invitation</button>
                     </form>
 
                     <form id="lookupNameForm" class="lookup-form hidden">
                         <div class="form-group">
-                            <label for="lookupLastName">Last Name</label>
-                            <input type="text" id="lookupLastName" name="lookupLastName" placeholder="Enter your last name">
+                            <label for="lookupLastName">Your Name</label>
+                            <input type="text" id="lookupLastName" name="lookupLastName" placeholder="Enter your name or last name">
                         </div>
                         <button type="submit" class="submit-btn">Search</button>
                     </form>
@@ -634,6 +634,8 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

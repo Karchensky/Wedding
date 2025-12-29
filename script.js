@@ -175,13 +175,15 @@ async function lookupByCode(code) {
     hideError();
     hideResults();
     
-    if (typeof supabase !== 'undefined') {
+    if (supabase) {
         try {
             const { data, error } = await supabase
                 .from('invitations')
                 .select('*')
                 .eq('code', code.toUpperCase())
                 .single();
+            
+            console.log('Code lookup result:', { code, data, error });
             
             if (error || !data) {
                 showError();
@@ -194,6 +196,7 @@ async function lookupByCode(code) {
             showError();
         }
     } else {
+        console.log('Supabase not available, using demo mode');
         // Demo mode: use sample data
         const demoInvitations = getDemoInvitations();
         const found = demoInvitations.find(function(inv) { 
@@ -209,39 +212,63 @@ async function lookupByCode(code) {
 }
 
 /**
- * Lookup invitation by last name
+ * Lookup invitation by name (searches party_name and guest_names)
  */
-async function lookupByName(lastName) {
+async function lookupByName(searchName) {
     hideError();
     hideResults();
     
-    if (typeof supabase !== 'undefined') {
+    const searchLower = searchName.toLowerCase();
+    
+    // Filter function to check party_name and guest_names
+    function matchesSearch(inv) {
+        // Check party_name
+        if (inv.party_name.toLowerCase().includes(searchLower)) {
+            return true;
+        }
+        // Check each guest name in the array
+        if (inv.guest_names && Array.isArray(inv.guest_names)) {
+            return inv.guest_names.some(function(name) {
+                return name.toLowerCase().includes(searchLower);
+            });
+        }
+        return false;
+    }
+    
+    if (supabase) {
         try {
+            // Fetch all invitations and filter client-side
             const { data, error } = await supabase
                 .from('invitations')
-                .select('*')
-                .ilike('party_name', '%' + lastName + '%');
+                .select('*');
             
-            if (error || !data || data.length === 0) {
+            console.log('Name search results:', { data, error, searchName });
+            
+            if (error) {
+                console.error('Lookup error:', error);
                 showError();
                 return;
             }
             
-            if (data.length === 1) {
-                selectInvitation(data[0]);
+            const matches = (data || []).filter(matchesSearch);
+            console.log('Filtered matches:', matches);
+            
+            if (matches.length === 0) {
+                showError();
+            } else if (matches.length === 1) {
+                selectInvitation(matches[0]);
             } else {
-                showResults(data);
+                showResults(matches);
             }
         } catch (error) {
             console.error('Lookup error:', error);
             showError();
         }
     } else {
+        console.log('Supabase not available, using demo mode');
         // Demo mode
         const demoInvitations = getDemoInvitations();
-        const matches = demoInvitations.filter(function(inv) {
-            return inv.party_name.toLowerCase().includes(lastName.toLowerCase());
-        });
+        const matches = demoInvitations.filter(matchesSearch);
         
         if (matches.length === 0) {
             showError();
@@ -459,7 +486,7 @@ async function submitRSVP() {
     };
     
     // Submit to Supabase or demo mode
-    if (typeof supabase !== 'undefined') {
+    if (supabase) {
         try {
             // Check if RSVP already exists (for updates)
             const { data: existing } = await supabase
@@ -903,7 +930,7 @@ function initPhotoUpload() {
         uploadBtn.classList.add('uploading');
         uploadBtn.disabled = true;
         
-        if (typeof supabase !== 'undefined') {
+        if (supabase) {
             try {
                 for (let i = 0; i < selectedFiles.length; i++) {
                     const file = selectedFiles[i];
@@ -984,7 +1011,7 @@ async function loadSharedPhotos(loadMore) {
         photosOffset = 0;
     }
     
-    if (typeof supabase !== 'undefined') {
+    if (supabase) {
         try {
             const { data, error } = await supabase
                 .from('shared_photos')
