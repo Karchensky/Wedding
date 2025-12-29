@@ -1,4 +1,0 @@
-# Ignore Deno-based Edge Functions (they show false TypeScript errors)
-# These files work correctly when deployed to Supabase
-supabase/functions/
-

@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+﻿import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts"
 
 const GMAIL_USER = Deno.env.get('GMAIL_USER')
@@ -11,11 +11,11 @@ interface RSVPPayload {
   record: {
     id: string
     invitation_id: string
-    responses: { name: string; attending: boolean }[]
-    dietary_notes: string
+    guest_responses: { name: string; attending: boolean }[]
+    dietary_restrictions: string
     message: string
-    accommodation_preference: string
-    created_at: string
+    castle_preference: string
+    submitted_at: string
   }
   old_record: any
 }
@@ -25,36 +25,27 @@ serve(async (req) => {
     const payload: RSVPPayload = await req.json()
     const { record } = payload
     
-    const attendingGuests = record.responses.filter(r => r.attending).map(r => r.name)
-    const decliningGuests = record.responses.filter(r => !r.attending).map(r => r.name)
+    let responses = record.guest_responses
+    if (typeof responses === 'string') {
+      responses = JSON.parse(responses)
+    }
+    
+    const attendingGuests = responses.filter((r: any) => r.attending).map((r: any) => r.name)
+    const decliningGuests = responses.filter((r: any) => !r.attending).map((r: any) => r.name)
     
     const subject = payload.type === 'UPDATE' 
       ? `RSVP Updated: ${attendingGuests.length > 0 ? attendingGuests.join(', ') : 'Response changed'}`
       : `New RSVP: ${attendingGuests.length > 0 ? attendingGuests.join(', ') : 'Declined'}`
     
-    const emailBody = `
-      <h2>Wedding RSVP ${payload.type === 'UPDATE' ? 'Updated' : 'Received'}</h2>
-      
-      <h3>Attending:</h3>
-      <p>${attendingGuests.length > 0 ? attendingGuests.join(', ') : 'None'}</p>
-      
-      <h3>Unable to Attend:</h3>
-      <p>${decliningGuests.length > 0 ? decliningGuests.join(', ') : 'None'}</p>
-      
-      <h3>Accommodation Preference:</h3>
-      <p>${record.accommodation_preference || 'Not specified'}</p>
-      
-      <h3>Dietary Notes:</h3>
-      <p>${record.dietary_notes || 'None'}</p>
-      
-      <h3>Message:</h3>
-      <p>${record.message || 'No message'}</p>
-      
-      <hr>
-      <p style="color: #666; font-size: 12px;">
-        Submitted: ${new Date(record.created_at).toLocaleString()}
-      </p>
-    `
+    const attendingList = attendingGuests.length > 0 ? attendingGuests.join(', ') : 'None'
+    const decliningList = decliningGuests.length > 0 ? decliningGuests.join(', ') : 'None'
+    const accommodation = record.castle_preference || 'Not specified'
+    const dietary = record.dietary_restrictions || 'None'
+    const message = record.message || 'No message'
+    const timestamp = new Date(record.submitted_at).toLocaleString()
+    const actionWord = payload.type === 'UPDATE' ? 'Updated' : 'Received'
+    
+    const emailBody = `<html><body style="font-family: Arial, sans-serif; padding: 20px;"><h2 style="color: #333;">Wedding RSVP ${actionWord}</h2><h3 style="color: #4ade80;">Attending:</h3><p>${attendingList}</p><h3 style="color: #f87171;">Unable to Attend:</h3><p>${decliningList}</p><h3>Accommodation Preference:</h3><p>${accommodation}</p><h3>Dietary Notes:</h3><p>${dietary}</p><h3>Message:</h3><p>${message}</p><hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;"><p style="color: #666; font-size: 12px;">Submitted: ${timestamp}</p></body></html>`
     
     const client = new SMTPClient({
       connection: {
@@ -72,7 +63,7 @@ serve(async (req) => {
       from: GMAIL_USER!,
       to: NOTIFICATION_EMAILS.split(',').map(e => e.trim()),
       subject: subject,
-      content: "Please view this email in HTML format.",
+      content: `RSVP ${actionWord}: ${attendingList} attending, ${decliningList} declined.`,
       html: emailBody,
     })
     
@@ -90,4 +81,3 @@ serve(async (req) => {
     })
   }
 })
-

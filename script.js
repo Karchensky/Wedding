@@ -367,31 +367,42 @@ async function submitRSVP() {
             
             let result;
             if (existing) {
-                // Update existing
+                // Update existing using RPC function
                 console.log('Updating existing RSVP');
-                result = await supabaseClient
-                    .from('rsvps')
-                    .update({
-                        guest_responses: guestResponses,
-                        dietary_restrictions: formData.dietary_restrictions,
-                        castle_preference: formData.castle_preference,
-                        email: formData.email,
-                        message: formData.message
-                    })
-                    .eq('invitation_id', currentInvitation.id);
+                result = await supabaseClient.rpc('update_rsvp', {
+                    inv_id: currentInvitation.id,
+                    p_guest_responses: guestResponses,
+                    p_dietary_restrictions: formData.dietary_restrictions || '',
+                    p_castle_preference: formData.castle_preference || '',
+                    p_email: formData.email || '',
+                    p_message: formData.message || ''
+                });
             } else {
-                // Insert new
+                // Insert new using RPC function
                 console.log('Inserting new RSVP');
-                result = await supabaseClient
-                    .from('rsvps')
-                    .insert([formData]);
+                result = await supabaseClient.rpc('insert_rsvp', {
+                    inv_id: currentInvitation.id,
+                    p_guest_responses: guestResponses,
+                    p_dietary_restrictions: formData.dietary_restrictions || '',
+                    p_castle_preference: formData.castle_preference || '',
+                    p_email: formData.email || '',
+                    p_message: formData.message || ''
+                });
             }
             
             console.log('Result:', result);
             
+            // Check for Supabase-level error
             if (result.error) {
                 console.error('RSVP error:', result.error);
                 alert('There was an error submitting your RSVP. Please try again.');
+                return;
+            }
+            
+            // Check for RPC function error
+            if (result.data && result.data.success === false) {
+                console.error('RSVP error:', result.data.error);
+                alert('There was an error submitting your RSVP: ' + result.data.error);
                 return;
             }
             
