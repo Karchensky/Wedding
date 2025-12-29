@@ -1,0 +1,18 @@
+# Environment files with secrets
+.env
+.env.local
+
+# Node modules
+node_modules/
+
+# Keep invitations private (contains guest emails/names)
+data/invitations.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+

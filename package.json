@@ -1,0 +1,14 @@
+{
+  "name": "wedding-website",
+  "version": "1.0.0",
+  "description": "Bryan & Emily Wedding Website - Castello del Trebbio",
+  "scripts": {
+    "migrate": "node scripts/run-migration.js",
+    "sync-invitations": "node scripts/sync-invitations.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.3.1",
+    "pg": "^8.16.3"
+  }
+}
