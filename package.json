@@ -4,11 +4,13 @@
   "description": "Bryan & Emily Wedding Website - Castello del Trebbio",
   "scripts": {
     "migrate": "node scripts/run-migration.js",
-    "sync-invitations": "node scripts/sync-invitations.js"
+    "sync-invitations": "node scripts/sync-invitations.js",
+    "send-invitation": "node scripts/send-invitation-email.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
     "dotenv": "^16.3.1",
+    "nodemailer": "^6.9.16",
     "pg": "^8.16.3"
   }
 }

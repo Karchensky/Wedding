@@ -152,36 +152,85 @@
             border-color: var(--color-text);
         }
         
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+        /* Stats table - full width, clear labels */
+        .stats-table-wrap {
+            width: 100%;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
         }
-        
-        .stat-card {
-            background: var(--color-card);
-            padding: 24px;
-            border-radius: 12px;
+        .stats-table-wrap table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+        .stats-table-wrap th {
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--color-muted);
+            font-weight: 500;
+            border-bottom: 1px solid #333;
             text-align: center;
         }
-        
-        .stat-number {
+        .stats-table-wrap td {
+            padding: 14px 12px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        .stats-table-wrap .stat-num {
             font-family: var(--font-heading);
-            font-size: 3rem;
+            font-size: 1.75rem;
             font-weight: 600;
             color: var(--color-accent);
-            line-height: 1;
+        }
+        .stats-table-wrap .stat-num.success { color: var(--color-success); }
+        .stats-table-wrap .stat-num.danger { color: var(--color-danger); }
+        .stats-table-wrap .stat-label-row th {
+            font-size: 0.7rem;
+            padding: 6px 12px;
+            color: var(--color-muted);
+            opacity: 0.9;
         }
         
-        .stat-number.success { color: var(--color-success); }
-        .stat-number.danger { color: var(--color-danger); }
-        
-        .stat-label {
+        /* Collapsible section */
+        .collapsible-section {
+            background: var(--color-card);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .collapsible-section .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .collapsible-section .section-header:hover {
+            background: rgba(255,255,255,0.03);
+        }
+        .collapsible-section .section-header h2 {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            color: var(--color-text);
+            margin: 0;
+        }
+        .collapsible-section .section-toggle {
+            font-size: 1.2rem;
             color: var(--color-muted);
-            margin-top: 8px;
-            font-size: 0.95rem;
+            transition: transform 0.2s;
+        }
+        .collapsible-section.collapsed .section-toggle {
+            transform: rotate(-90deg);
+        }
+        .collapsible-section .section-body {
+            padding: 0 24px 24px;
+        }
+        .collapsible-section.collapsed .section-body {
+            display: none;
         }
         
         /* Sections */
@@ -309,6 +358,11 @@
             padding: 40px;
         }
         
+        .muted { color: var(--color-muted); font-size: 0.85em; }
+        .guest-cells { vertical-align: top; }
+        .guest-response-line { margin-bottom: 4px; }
+        .guest-response-line:last-child { margin-bottom: 0; }
+        
         /* Loading */
         .loading {
             text-align: center;
@@ -356,86 +410,187 @@
             <button class="logout-btn" id="logoutBtn">Logout</button>
         </header>
         
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="totalInvited">-</div>
-                <div class="stat-label">Guests Invited</div>
+        <!-- Informal RSVP (collapsible) -->
+        <div class="collapsible-section" id="section-informal">
+            <div class="section-header" onclick="toggleSection('section-informal')">
+                <h2>Informal RSVP</h2>
+                <span class="section-toggle">▼</span>
             </div>
-            <div class="stat-card">
-                <div class="stat-number success" id="totalAttending">-</div>
-                <div class="stat-label">Attending</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number danger" id="totalDeclined">-</div>
-                <div class="stat-label">Declined</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalPending">-</div>
-                <div class="stat-label">Awaiting Response</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalPhotos">-</div>
-                <div class="stat-label">Photos Shared</div>
-            </div>
-        </div>
-        
-        <!-- RSVPs Section -->
-        <div class="section">
-            <div class="section-header">
-                <h2>RSVP Responses</h2>
-                <button class="refresh-btn" onclick="loadRSVPs()">Refresh</button>
-            </div>
-            <div class="table-wrapper">
-                <table id="rsvpTable">
-                    <thead>
-                        <tr>
-                            <th>Party</th>
-                            <th>Guests</th>
-                            <th>Status</th>
-                            <th>Accommodation</th>
-                            <th>Dietary Notes</th>
-                            <th>Message</th>
-                            <th>Submitted</th>
+            <div class="section-body">
+                <div class="stats-table-wrap">
+                    <table>
+                        <tr class="stat-label-row">
+                            <th colspan="3">Invite count</th>
+                            <th colspan="4">Guest count</th>
                         </tr>
-                    </thead>
-                    <tbody id="rsvpTableBody">
-                        <tr><td colspan="7" class="loading">Loading...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Pending Invitations -->
-        <div class="section">
-            <div class="section-header">
-                <h2>Pending Responses</h2>
-            </div>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
                         <tr>
-                            <th>Party Name</th>
-                            <th>Guests</th>
-                            <th>Code</th>
-                            <th>Email</th>
+                            <th>Invites</th>
+                            <th>Sent</th>
+                            <th>Received</th>
+                            <th>Accepted</th>
+                            <th>Declined</th>
+                            <th>Not sure</th>
+                            <th>Waiting</th>
                         </tr>
-                    </thead>
-                    <tbody id="pendingTableBody">
-                        <tr><td colspan="4" class="loading">Loading...</td></tr>
-                    </tbody>
-                </table>
+                        <tr>
+                            <td><span class="stat-num" id="infInvites">-</span></td>
+                            <td><span class="stat-num" id="infSent">-</span></td>
+                            <td><span class="stat-num" id="infReceived">-</span></td>
+                            <td><span class="stat-num success" id="infAccepted">-</span></td>
+                            <td><span class="stat-num danger" id="infDeclined">-</span></td>
+                            <td><span class="stat-num" id="infNotSure">-</span></td>
+                            <td><span class="stat-num" id="infWaiting">-</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <p class="muted" style="font-size:0.8rem;margin-bottom:16px;">Waiting = guests from sent invitations with no response yet.</p>
+                <div class="section-header" style="cursor:default;padding:0 0 12px;">
+                    <h2 style="font-size:1.1rem;">Responses</h2>
+                    <button class="refresh-btn" onclick="loadPlanningRequests()">Refresh</button>
+                </div>
+                <div class="table-wrapper">
+                    <table id="planningTable">
+                        <thead>
+                            <tr>
+                                <th>Party</th>
+                                <th>Guests</th>
+                                <th>Status</th>
+                                <th>Message</th>
+                                <th>Address</th>
+                                <th>Submitted</th>
+                            </tr>
+                        </thead>
+                        <tbody id="planningTableBody">
+                            <tr><td colspan="6" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="section-header" style="cursor:default;padding:16px 0 12px;">
+                    <h2 style="font-size:1.1rem;">Awaiting response</h2>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Party</th>
+                                <th>Guests</th>
+                                <th>Code</th>
+                                <th>Email</th>
+                                <th>Sent</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingTableBody">
+                            <tr><td colspan="5" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         
-        <!-- Photos Section -->
-        <div class="section">
-            <div class="section-header">
-                <h2>Shared Photos</h2>
-                <button class="refresh-btn" onclick="loadPhotos()">Refresh</button>
+        <!-- Save the date (collapsible) -->
+        <div class="collapsible-section" id="section-save">
+            <div class="section-header" onclick="toggleSection('section-save')">
+                <h2>Save the date</h2>
+                <span class="section-toggle">▼</span>
             </div>
-            <div class="photos-grid" id="photosGrid">
-                <div class="loading">Loading...</div>
+            <div class="section-body">
+                <div class="stats-table-wrap">
+                    <table>
+                        <tr class="stat-label-row">
+                            <th colspan="2">Invite count</th>
+                        </tr>
+                        <tr>
+                            <th>Invites</th>
+                            <th>Sent</th>
+                        </tr>
+                        <tr>
+                            <td><span class="stat-num" id="saveInvites">-</span></td>
+                            <td><span class="stat-num" id="saveSent">-</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <p class="muted" style="margin-bottom:16px;">No response required — sent for awareness.</p>
+            </div>
+        </div>
+        
+        <!-- Formal RSVP (collapsible) -->
+        <div class="collapsible-section" id="section-formal">
+            <div class="section-header" onclick="toggleSection('section-formal')">
+                <h2>Formal RSVP</h2>
+                <span class="section-toggle">▼</span>
+            </div>
+            <div class="section-body">
+                <div class="stats-table-wrap">
+                    <table>
+                        <tr class="stat-label-row">
+                            <th colspan="3">Invite count</th>
+                            <th colspan="3">Guest count</th>
+                        </tr>
+                        <tr>
+                            <th>Invites</th>
+                            <th>Sent</th>
+                            <th>Received</th>
+                            <th>Accepted</th>
+                            <th>Declined</th>
+                            <th>Waiting</th>
+                        </tr>
+                        <tr>
+                            <td><span class="stat-num" id="forInvites">-</span></td>
+                            <td><span class="stat-num" id="forSent">-</span></td>
+                            <td><span class="stat-num" id="forReceived">-</span></td>
+                            <td><span class="stat-num success" id="forAccepted">-</span></td>
+                            <td><span class="stat-num danger" id="forDeclined">-</span></td>
+                            <td><span class="stat-num" id="forWaiting">-</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <p class="muted" style="font-size:0.8rem;margin-bottom:16px;">Waiting = guests from sent invitations with no response yet.</p>
+                <div class="section-header" style="cursor:default;padding:0 0 12px;">
+                    <h2 style="font-size:1.1rem;">Responses</h2>
+                    <button class="refresh-btn" onclick="loadRSVPs()">Refresh</button>
+                </div>
+                <div class="table-wrapper">
+                    <table id="rsvpTable">
+                        <thead>
+                            <tr>
+                                <th>Party</th>
+                                <th>Guests</th>
+                                <th>Status</th>
+                                <th>Accommodation</th>
+                                <th>Dietary</th>
+                                <th>Message</th>
+                                <th>Submitted</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rsvpTableBody">
+                            <tr><td colspan="7" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Photos (collapsible) -->
+        <div class="collapsible-section" id="section-photos">
+            <div class="section-header" onclick="toggleSection('section-photos')">
+                <h2>Shared photos</h2>
+                <span class="section-toggle">▼</span>
+            </div>
+            <div class="section-body">
+                <div class="stats-table-wrap">
+                    <table>
+                        <tr>
+                            <th>Photos</th>
+                        </tr>
+                        <tr>
+                            <td><span class="stat-num" id="totalPhotos">-</span></td>
+                        </tr>
+                    </table>
+                </div>
+                <button class="refresh-btn" onclick="loadPhotos()" style="margin-bottom:16px;">Refresh</button>
+                <div class="photos-grid" id="photosGrid">
+                    <div class="loading">Loading...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -446,8 +601,15 @@
         // Simple password protection (client-side, for convenience not security)
         // The real security is in Supabase RLS policies
         const ADMIN_PASSWORD = 'bryanemily2027';
+        function escapeHtml(s) {
+            if (s == null) return '';
+            const div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
+        }
         
         let allInvitations = [];
+        let allPlanningRequests = [];
         let allRSVPs = [];
         let allPhotos = [];
         
@@ -493,8 +655,8 @@
                 document.getElementById('loginError').style.display = 'block';
                 return;
             }
-            // Then load RSVPs and photos in parallel
             await Promise.all([
+                loadPlanningRequests(),
                 loadRSVPs(),
                 loadPhotos()
             ]);
@@ -530,52 +692,50 @@
                 return false;
             }
         }
+
+        async function loadPlanningRequests() {
+            if (!supabaseClient) {
+                document.getElementById('planningTableBody').innerHTML = '<tr><td colspan="6" class="no-data">Database connection error</td></tr>';
+                return;
+            }
+            try {
+                const { data, error } = await supabaseClient.rpc('admin_get_informal_rsvp', { admin_password: ADMIN_PASSWORD });
+                if (error) {
+                    document.getElementById('planningTableBody').innerHTML = `<tr><td colspan="6" class="no-data">Error: ${error.message}</td></tr>`;
+                    return;
+                }
+                allPlanningRequests = (data || []).map(pr => ({
+                    ...pr,
+                    invitations: allInvitations.find(inv => inv.id === pr.invitation_id) || null
+                }));
+                renderPlanningTable();
+                renderPendingTable();
+            } catch (err) {
+                console.error('Exception loading planning requests:', err);
+                document.getElementById('planningTableBody').innerHTML = '<tr><td colspan="6" class="no-data">Error loading</td></tr>';
+            }
+        }
         
         async function loadRSVPs() {
             if (!supabaseClient) {
-                console.error('Supabase client not initialized');
-                document.getElementById('rsvpTableBody').innerHTML = 
-                    '<tr><td colspan="7" class="no-data">Database connection error</td></tr>';
+                document.getElementById('rsvpTableBody').innerHTML = '<tr><td colspan="7" class="no-data">Database connection error</td></tr>';
                 return;
             }
-            
             try {
-                // Use password-protected RPC function
-                const { data, error } = await supabaseClient
-                    .rpc('admin_get_rsvps', { admin_password: ADMIN_PASSWORD });
-                
+                const { data, error } = await supabaseClient.rpc('admin_get_formal_rsvp', { admin_password: ADMIN_PASSWORD });
                 if (error) {
-                    console.error('Error loading RSVPs:', error);
-                    document.getElementById('rsvpTableBody').innerHTML = 
-                        `<tr><td colspan="7" class="no-data">Error: ${error.message}</td></tr>`;
+                    document.getElementById('rsvpTableBody').innerHTML = `<tr><td colspan="7" class="no-data">Error: ${error.message}</td></tr>`;
                     return;
                 }
-                
-                console.log('Raw RSVP data:', data);
-                
-                if (data && data.length > 0) {
-                    // Join with invitations client-side
-                    allRSVPs = data.map(rsvp => {
-                        const invitation = allInvitations.find(inv => inv.id === rsvp.invitation_id);
-                        console.log('RSVP invitation_id:', rsvp.invitation_id, 'Found invitation:', invitation?.party_name);
-                        return {
-                            ...rsvp,
-                            invitations: invitation || null
-                        };
-                    });
-                    console.log('Processed RSVPs:', allRSVPs.length);
-                    renderRSVPTable();
-                    renderPendingTable();
-                } else {
-                    allRSVPs = [];
-                    console.log('No RSVPs found');
-                    renderRSVPTable();
-                    renderPendingTable();
-                }
+                allRSVPs = (data && data.length > 0) ? data.map(rsvp => ({
+                    ...rsvp,
+                    invitations: allInvitations.find(inv => inv.id === rsvp.invitation_id) || null
+                })) : [];
+                renderRSVPTable();
+                renderPendingTable();
             } catch (err) {
                 console.error('Exception loading RSVPs:', err);
-                document.getElementById('rsvpTableBody').innerHTML = 
-                    `<tr><td colspan="7" class="no-data">Exception: ${err.message}</td></tr>`;
+                document.getElementById('rsvpTableBody').innerHTML = `<tr><td colspan="7" class="no-data">Exception: ${err.message}</td></tr>`;
             }
         }
         
@@ -606,95 +766,144 @@
             }
         }
         
-        function updateStats() {
-            // Total invited guests
-            let totalInvited = 0;
-            allInvitations.forEach(inv => {
-                totalInvited += inv.guest_names ? inv.guest_names.length : 0;
-            });
-            
-            // Count responses
-            let attending = 0;
-            let declined = 0;
-            const respondedInvitationIds = new Set();
-            
-            allRSVPs.forEach(rsvp => {
-                respondedInvitationIds.add(rsvp.invitation_id);
-                // Handle guest_responses - could be JSONB (object) or string
-                let responses = rsvp.guest_responses;
-                if (typeof responses === 'string') {
-                    try { responses = JSON.parse(responses); } catch(e) { responses = []; }
-                }
-                console.log('Counting responses for RSVP:', rsvp.invitation_id, responses);
-                if (responses && Array.isArray(responses)) {
-                    responses.forEach(r => {
-                        if (r.attending) attending++;
-                        else declined++;
-                    });
-                }
-            });
-            console.log('Stats - Attending:', attending, 'Declined:', declined, 'Responded IDs:', [...respondedInvitationIds]);
-            
-            // Pending = invited guests minus responded
-            let pendingGuests = 0;
-            allInvitations.forEach(inv => {
-                if (!respondedInvitationIds.has(inv.id)) {
-                    pendingGuests += inv.guest_names ? inv.guest_names.length : 0;
-                }
-            });
-            
-            document.getElementById('totalInvited').textContent = totalInvited;
-            document.getElementById('totalAttending').textContent = attending;
-            document.getElementById('totalDeclined').textContent = declined;
-            document.getElementById('totalPending').textContent = pendingGuests;
-            document.getElementById('totalPhotos').textContent = allPhotos.length;
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('collapsed');
         }
         
-        function renderRSVPTable() {
-            const tbody = document.getElementById('rsvpTableBody');
-            
-            if (allRSVPs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No RSVPs yet</td></tr>';
+        function updateStats() {
+            const informalRows = (allInvitations || []).filter(inv => inv.invitation_type === 'informal' && inv.active !== false);
+            const formalRows = (allInvitations || []).filter(inv => inv.invitation_type === 'formal' && inv.active !== false);
+            const saveTheDateRows = (allInvitations || []).filter(inv => inv.invitation_type === 'save_the_date' && inv.active !== false);
+
+            const planningRespondedIds = new Set((allPlanningRequests || []).map(pr => pr.invitation_id));
+            const formalRespondedIds = new Set((allRSVPs || []).map(r => r.invitation_id));
+
+            // Informal: invite counts + guest counts
+            const infInvites = informalRows.length;
+            const infSent = informalRows.filter(inv => inv.sent_at).length;
+            const infReceived = (allPlanningRequests || []).length;
+            let infAccepted = 0, infDeclined = 0, infNotSure = 0;
+            (allPlanningRequests || []).forEach(pr => {
+                let g = pr.guest_responses;
+                if (typeof g === 'string') try { g = JSON.parse(g); } catch(e) { g = []; }
+                (g || []).forEach(guest => {
+                    if (guest.response === 'yes') infAccepted++;
+                    else if (guest.response === 'no') infDeclined++;
+                    else if (guest.response === 'not_sure') infNotSure++;
+                });
+            });
+            const infWaiting = informalRows
+                .filter(inv => inv.sent_at && !planningRespondedIds.has(inv.id))
+                .reduce((sum, inv) => sum + (inv.party_size || (inv.guest_names ? inv.guest_names.length : 0)), 0);
+
+            // Save the date
+            const saveInvites = saveTheDateRows.length;
+            const saveSent = saveTheDateRows.filter(inv => inv.sent_at).length;
+
+            // Formal: invite counts + guest counts
+            const forInvites = formalRows.length;
+            const forSent = formalRows.filter(inv => inv.sent_at).length;
+            const forReceived = (allRSVPs || []).length;
+            let forAccepted = 0, forDeclined = 0;
+            (allRSVPs || []).forEach(rsvp => {
+                let g = rsvp.guest_responses;
+                if (typeof g === 'string') try { g = JSON.parse(g); } catch(e) { g = []; }
+                (g || []).forEach(guest => {
+                    if (guest.attending === true || guest.response === 'yes') forAccepted++;
+                    else forDeclined++;
+                });
+            });
+            const forWaiting = formalRows
+                .filter(inv => inv.sent_at && !formalRespondedIds.has(inv.id))
+                .reduce((sum, inv) => sum + (inv.party_size || (inv.guest_names ? inv.guest_names.length : 0)), 0);
+
+            document.getElementById('infInvites').textContent = infInvites;
+            document.getElementById('infSent').textContent = infSent;
+            document.getElementById('infReceived').textContent = infReceived;
+            document.getElementById('infAccepted').textContent = infAccepted;
+            document.getElementById('infDeclined').textContent = infDeclined;
+            document.getElementById('infNotSure').textContent = infNotSure;
+            document.getElementById('infWaiting').textContent = infWaiting;
+
+            document.getElementById('saveInvites').textContent = saveInvites;
+            document.getElementById('saveSent').textContent = saveSent;
+
+            document.getElementById('forInvites').textContent = forInvites;
+            document.getElementById('forSent').textContent = forSent;
+            document.getElementById('forReceived').textContent = forReceived;
+            document.getElementById('forAccepted').textContent = forAccepted;
+            document.getElementById('forDeclined').textContent = forDeclined;
+            document.getElementById('forWaiting').textContent = forWaiting;
+
+            document.getElementById('totalPhotos').textContent = (allPhotos || []).length;
+        }
+        
+        function renderPlanningTable() {
+            const tbody = document.getElementById('planningTableBody');
+            if (allPlanningRequests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">No informal RSVP responses yet</td></tr>';
                 return;
             }
-            
+            tbody.innerHTML = allPlanningRequests.map(pr => {
+                const partyName = pr.invitations?.party_name || 'Unknown';
+                const partySize = pr.invitations?.guest_names?.length || 0;
+                let guests = pr.guest_responses;
+                if (typeof guests === 'string') {
+                    try { guests = JSON.parse(guests); } catch(e) { guests = []; }
+                }
+                guests = guests || [];
+                const guestLines = guests.map(g => {
+                    const label = g.response === 'yes' ? 'Planning to attend' : g.response === 'no' ? 'Won\'t make it' : 'Still deciding';
+                    const cls = g.response === 'yes' ? 'attending' : g.response === 'no' ? 'declined' : '';
+                    const style = g.response === 'not_sure' ? 'background:#555;color:#fff' : '';
+                    return `<div class="guest-response-line"><span class="status-badge ${cls}" style="${style}">${escapeHtml(g.name)}</span> → ${label}</div>`;
+                }).join('');
+                const summary = guests.length ? `${guests.filter(g => g.response === 'yes').length} yes, ${guests.filter(g => g.response === 'no').length} no, ${guests.filter(g => g.response === 'not_sure').length} not sure` : '-';
+                const date = new Date(pr.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const address = (pr.physical_address || '-').replace(/\n/g, ' ');
+                return `<tr>
+                    <td><strong>${escapeHtml(partyName)}</strong><br><span class="muted">${partySize} guest(s)</span></td>
+                    <td class="guest-cells">${guestLines || '-'}</td>
+                    <td>${summary}</td>
+                    <td>${escapeHtml(pr.message || '-')}</td>
+                    <td>${escapeHtml(address)}</td>
+                    <td>${date}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderRSVPTable() {
+            const tbody = document.getElementById('rsvpTableBody');
+            if (allRSVPs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No formal RSVPs yet</td></tr>';
+                return;
+            }
             tbody.innerHTML = allRSVPs.map(rsvp => {
                 const partyName = rsvp.invitations?.party_name || 'Unknown';
-                
-                // Parse guest_responses if it's a string
+                const partySize = rsvp.invitations?.guest_names?.length || 0;
                 let guests = rsvp.guest_responses;
                 if (typeof guests === 'string') {
                     try { guests = JSON.parse(guests); } catch(e) { guests = []; }
                 }
                 guests = guests || [];
-                
-                const attendingGuests = guests.filter(g => g.attending);
-                const decliningGuests = guests.filter(g => !g.attending);
-                
-                let guestList = '';
-                attendingGuests.forEach(g => {
-                    guestList += `<span class="status-badge attending">${g.name}</span> `;
-                });
-                decliningGuests.forEach(g => {
-                    guestList += `<span class="status-badge declined">${g.name}</span> `;
-                });
-                
-                const status = attendingGuests.length > 0 
-                    ? `<span class="status-badge attending">${attendingGuests.length} attending</span>`
-                    : `<span class="status-badge declined">All declined</span>`;
-                
+                const guestLines = guests.map(g => {
+                    const attending = g.attending === true || g.response === 'yes';
+                    const label = attending ? 'Attending' : 'Declined';
+                    return `<div class="guest-response-line"><span class="status-badge ${attending ? 'attending' : 'declined'}">${escapeHtml(g.name)}</span> → ${label}</div>`;
+                }).join('');
+                const attendingCount = guests.filter(g => g.attending === true || g.response === 'yes').length;
+                const summary = guests.length ? `${attendingCount} attending, ${guests.length - attendingCount} declined` : '-';
                 const date = new Date(rsvp.submitted_at || rsvp.created_at).toLocaleDateString('en-US', {
                     month: 'short', day: 'numeric', year: 'numeric'
                 });
-                
                 return `
                     <tr>
-                        <td><strong>${partyName}</strong></td>
-                        <td>${guestList}</td>
-                        <td>${status}</td>
+                        <td><strong>${escapeHtml(partyName)}</strong><br><span class="muted">${partySize} guest(s)</span></td>
+                        <td class="guest-cells">${guestLines || '-'}</td>
+                        <td>${summary}</td>
                         <td>${rsvp.castle_preference || '-'}</td>
-                        <td>${rsvp.dietary_restrictions || '-'}</td>
-                        <td>${rsvp.message || '-'}</td>
+                        <td>${escapeHtml(rsvp.dietary_restrictions || '-')}</td>
+                        <td>${escapeHtml(rsvp.message || '-')}</td>
                         <td>${date}</td>
                     </tr>
                 `;
@@ -703,22 +912,25 @@
         
         function renderPendingTable() {
             const tbody = document.getElementById('pendingTableBody');
-            const respondedIds = new Set(allRSVPs.map(r => r.invitation_id));
-            const pending = allInvitations.filter(inv => !respondedIds.has(inv.id));
-            
+            const planningRespondedIds = new Set(allPlanningRequests.map(r => r.invitation_id));
+            const pending = (allInvitations || []).filter(inv =>
+                inv.invitation_type === 'informal' && (inv.active !== false) && inv.sent_at && !planningRespondedIds.has(inv.id)
+            );
             if (pending.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="no-data">All invitations have responded!</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">No sent informal invitations awaiting response.</td></tr>';
                 return;
             }
             
             tbody.innerHTML = pending.map(inv => {
                 const guests = inv.guest_names ? inv.guest_names.join(', ') : '-';
+                const sentAt = inv.sent_at ? new Date(inv.sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
                 return `
                     <tr>
                         <td><strong>${inv.party_name}</strong></td>
                         <td>${guests}</td>
                         <td><code>${inv.code}</code></td>
                         <td>${inv.email || '-'}</td>
+                        <td>${sentAt}</td>
                     </tr>
                 `;
             }).join('');

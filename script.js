@@ -144,9 +144,9 @@ async function lookupByCode(code) {
     
     if (supabaseClient) {
         try {
-            // Use RPC function for secure lookup (prevents listing all invitations)
+            // Use RPC function for secure lookup (inv_type = informal for current RSVP flow)
             const { data, error } = await supabaseClient
-                .rpc('lookup_invitation', { lookup_code: code.toUpperCase() });
+                .rpc('lookup_invitation', { lookup_code: code.toUpperCase(), inv_type: 'informal' });
             
             if (error || !data || data.length === 0) {
                 showError();
@@ -213,10 +213,31 @@ function selectInvitation(invitation) {
     if (invitation.email) {
         document.getElementById('email').value = invitation.email;
     }
-    
+
     // Build guest list
     buildGuestList(invitation.guest_names);
-    
+
+    // Pre-fill from existing informal RSVP if any (async, non-blocking)
+    if (supabaseClient) {
+        (async function() {
+            try {
+                const { data } = await supabaseClient.rpc('get_informal_rsvp_by_invitation', { inv_id: invitation.id });
+                const existing = data && data.length > 0 ? data[0] : null;
+                if (existing) {
+                    if (existing.email) document.getElementById('email').value = existing.email;
+                    if (existing.physical_address && document.getElementById('physicalAddress')) document.getElementById('physicalAddress').value = existing.physical_address;
+                    if (existing.message && document.getElementById('message')) document.getElementById('message').value = existing.message;
+                    if (existing.guest_responses && Array.isArray(existing.guest_responses)) {
+                        existing.guest_responses.forEach(function(gr, idx) {
+                            const radio = document.querySelector('input[name="guest_' + idx + '"][value="' + (gr.response || '') + '"]');
+                            if (radio) radio.checked = true;
+                        });
+                    }
+                }
+            } catch (e) { /* ignore */ }
+        })();
+    }
+
     // Show/hide sections based on party size
     const castleGroup = document.getElementById('castleGroup');
     const dietaryGroup = document.getElementById('dietaryGroup');
@@ -230,7 +251,7 @@ function selectInvitation(invitation) {
 }
 
 /**
- * Build the guest list with individual RSVP options
+ * Build the guest list with planning options: Yes / No / Not sure (for full RSVP later, use Attending/Unable)
  */
 function buildGuestList(guestNames) {
     const guestList = document.getElementById('guestList');
@@ -249,17 +270,21 @@ function buildGuestList(guestNames) {
                     '<label class="radio-label">' +
                         '<input type="radio" name="guest_' + index + '" value="yes" required>' +
                         '<span class="radio-custom"></span>' +
-                        'Attending' +
+                        'Yes, I plan on attending' +
                     '</label>' +
                     '<label class="radio-label">' +
                         '<input type="radio" name="guest_' + index + '" value="no" required>' +
                         '<span class="radio-custom"></span>' +
-                        'Unable to Attend' +
+                        'No, it\'s unlikely' +
+                    '</label>' +
+                    '<label class="radio-label">' +
+                        '<input type="radio" name="guest_' + index + '" value="not_sure" required>' +
+                        '<span class="radio-custom"></span>' +
+                        'Not sure yet' +
                     '</label>' +
                 '</div>' +
             '</div>';
         
-        // Store the original name as data attribute
         card.dataset.guestName = name;
         card.dataset.guestIndex = index;
         
@@ -295,11 +320,10 @@ async function submitRSVP() {
         return;
     }
     
-    // Collect guest responses
+    // Collect guest responses (planning: yes/no/not_sure per guest)
     const guestCards = document.querySelectorAll('.guest-card');
     const guestResponses = [];
     let allAnswered = true;
-    let anyAttending = false;
     
     guestCards.forEach(function(card) {
         const name = card.dataset.guestName;
@@ -311,46 +335,29 @@ async function submitRSVP() {
             return;
         }
         
-        const attending = selectedRadio.value === 'yes';
-        if (attending) anyAttending = true;
-        
         guestResponses.push({
             name: name,
-            attending: attending
+            response: selectedRadio.value
         });
     });
     
-    console.log('Guest responses:', guestResponses, 'allAnswered:', allAnswered);
-    
     if (!allAnswered) {
-        alert('Please indicate attendance for all guests in your party.');
+        alert('Please indicate your response for each guest in your party.');
         return;
     }
     
-    // Get castle preference (only required if someone is attending)
     const castleRadio = document.querySelector('input[name="castleStay"]:checked');
-    console.log('Castle preference:', castleRadio?.value, 'anyAttending:', anyAttending);
-    
-    if (anyAttending && !castleRadio) {
-        alert('Please select your accommodation preference.');
-        return;
-    }
-    
-    const emailValue = document.getElementById('email').value;
-    console.log('Email:', emailValue);
-    
-    if (!emailValue) {
-        alert('Please enter your email address.');
-        return;
-    }
-    
+    const emailValue = (document.getElementById('email') && document.getElementById('email').value) || '';
+    const physicalAddressValue = (document.getElementById('physicalAddress') && document.getElementById('physicalAddress').value) || '';
+
     const formData = {
         invitation_id: currentInvitation.id,
         guest_responses: guestResponses,
-        dietary_restrictions: document.getElementById('dietary').value || null,
-        castle_preference: castleRadio ? castleRadio.value : null,
-        email: emailValue,
-        message: document.getElementById('message').value || null
+        dietary_restrictions: (document.getElementById('dietary') && document.getElementById('dietary').value) || '',
+        castle_preference: castleRadio ? castleRadio.value : '',
+        email: emailValue || '',
+        physical_address: physicalAddressValue || '',
+        message: (document.getElementById('message') && document.getElementById('message').value) || ''
     };
     
     console.log('Form data:', formData);
@@ -358,35 +365,27 @@ async function submitRSVP() {
     // Submit to Supabase or demo mode
     if (supabaseClient) {
         try {
-            // First check if RSVP exists (using RPC for security)
+            // Check if planning request already exists (planning requests table, not RSVP)
             const { data: existingArr } = await supabaseClient
-                .rpc('get_rsvp_by_invitation', { inv_id: currentInvitation.id });
+                .rpc('get_informal_rsvp_by_invitation', { inv_id: currentInvitation.id });
             const existing = existingArr && existingArr.length > 0 ? existingArr[0] : null;
-            
-            console.log('Existing RSVP:', existing);
-            
+
             let result;
             if (existing) {
-                // Update existing using RPC function
-                console.log('Updating existing RSVP');
-                result = await supabaseClient.rpc('update_rsvp', {
+                result = await supabaseClient.rpc('update_informal_rsvp', {
                     inv_id: currentInvitation.id,
                     p_guest_responses: guestResponses,
-                    p_dietary_restrictions: formData.dietary_restrictions || '',
-                    p_castle_preference: formData.castle_preference || '',
+                    p_message: formData.message || '',
                     p_email: formData.email || '',
-                    p_message: formData.message || ''
+                    p_physical_address: formData.physical_address || null
                 });
             } else {
-                // Insert new using RPC function
-                console.log('Inserting new RSVP');
-                result = await supabaseClient.rpc('insert_rsvp', {
+                result = await supabaseClient.rpc('insert_informal_rsvp', {
                     inv_id: currentInvitation.id,
                     p_guest_responses: guestResponses,
-                    p_dietary_restrictions: formData.dietary_restrictions || '',
-                    p_castle_preference: formData.castle_preference || '',
+                    p_message: formData.message || '',
                     p_email: formData.email || '',
-                    p_message: formData.message || ''
+                    p_physical_address: formData.physical_address || null
                 });
             }
             
@@ -395,57 +394,63 @@ async function submitRSVP() {
             // Check for Supabase-level error
             if (result.error) {
                 console.error('RSVP error:', result.error);
-                alert('There was an error submitting your RSVP. Please try again.');
+                alert('There was an error submitting your response. Please try again.');
                 return;
             }
             
             // Check for RPC function error
             if (result.data && result.data.success === false) {
                 console.error('RSVP error:', result.data.error);
-                alert('There was an error submitting your RSVP: ' + result.data.error);
+                alert('There was an error submitting your response: ' + result.data.error);
                 return;
             }
             
-            showSuccess(guestResponses, anyAttending);
+            showSuccess(guestResponses);
         } catch (error) {
             console.error('RSVP error:', error);
-            alert('There was an error submitting your RSVP. Please try again.');
+            alert('There was an error submitting your response. Please try again.');
         }
     } else {
-        // Demo mode
         console.log('Demo mode - RSVP Data:', formData);
-        showSuccess(guestResponses, anyAttending);
+        showSuccess(guestResponses);
     }
 }
 
 /**
- * Show success message
+ * Show success message (supports planning response: yes/no/not_sure and full RSVP attending)
+ * Priority: (1) any yes → thrilled; (2) any not sure → follow up; (3) all no → sorry you'll be missed
  */
-function showSuccess(guestResponses, anyAttending) {
-    const attendingCount = guestResponses.filter(function(g) { return g.attending; }).length;
+function showSuccess(guestResponses) {
     const totalCount = guestResponses.length;
-    
-    let message = '';
-    if (anyAttending) {
-        if (attendingCount === totalCount) {
-            message = 'We are thrilled that ';
-            if (totalCount === 1) {
-                message += 'you will be joining us!';
-            } else {
-                message += 'your whole party will be joining us!';
-            }
+    const hasResponse = function(g) { return g.response !== undefined; };
+    const hasAttending = function(g) { return g.attending === true; };
+    const yesCount = guestResponses.filter(function(g) { return g.response === 'yes' || g.attending === true; }).length;
+    const noCount = guestResponses.filter(function(g) { return g.response === 'no' || g.attending === false; }).length;
+    const notSureCount = guestResponses.filter(function(g) { return g.response === 'not_sure'; }).length;
+
+    let message;
+    if (hasResponse(guestResponses[0])) {
+        // Informal flow: yes / not_sure / no
+        if (yesCount > 0) {
+            message = 'Thanks for letting us know. We are thrilled that you will be joining us! We will be in touch with more details as we get closer.';
+        } else if (notSureCount > 0) {
+            message = 'Thanks for letting us know. No problem—we\'ll follow up as we get closer, your response still helps us plan!';
         } else {
-            message = attendingCount + ' of ' + totalCount + ' guests will be attending. ';
-            message += 'We look forward to celebrating with you!';
+            message = 'Thanks for letting us know. We are sorry you will not be able to join us. You will be missed!';
         }
     } else {
-        message = 'We are sorry you will not be able to join us. You will be missed!';
+        // Formal flow (attending / declined)
+        if (yesCount > 0) {
+            message = 'Thanks for letting us know. We are thrilled that you will be joining us! We will be in touch with more details as we get closer.';
+        } else if (notSureCount > 0) {
+            message = 'Thanks for letting us know. No problem—we\'ll follow up as we get closer, your response still helps us plan!';
+        } else {
+            message = 'Thanks for letting us know. We are sorry you will not be able to join us. You will be missed!';
+        }
     }
-    
-    message += ' We will be in touch with more details soon.';
-    
+
     document.getElementById('successMessage').textContent = message;
-    
+
     document.getElementById('rsvpFormStep').classList.add('hidden');
     document.getElementById('rsvpSuccess').classList.remove('hidden');
     document.getElementById('rsvpSuccess').scrollIntoView({ behavior: 'smooth', block: 'center' });

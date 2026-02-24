@@ -1,12 +1,19 @@
-# Environment files with secrets
+# Environment files with secrets (never commit: service keys, DB URL, email passwords)
 .env
 .env.local
+.env.*.local
 
 # Node modules
 node_modules/
 
 # Keep invitations private (contains guest emails/names)
 data/invitations.json
+data/invitations.csv
+planning_request/invite-ids.txt
+informal_rsvp/invite-ids.txt
+invitations/informal_rsvp/codes.txt
+invitations/save_the_date/codes.txt
+invitations/formal_rsvp/codes.txt
 
 # OS files
 .DS_Store
@@ -15,4 +22,5 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
 

@@ -1,6 +1,7 @@
 /**
- * Supabase client configuration
- * Public anon key - safe for browser use, restricted by RLS policies
+ * Supabase client configuration (safe to commit).
+ * Uses the public anon key only; access is restricted by RLS and RPC functions.
+ * Never commit .env — it holds the service role key and email credentials.
  */
 
 const SUPABASE_URL = 'https://dutvixuprybiwxsdvzdf.supabase.co';

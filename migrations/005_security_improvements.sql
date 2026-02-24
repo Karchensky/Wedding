@@ -100,7 +100,10 @@ DROP POLICY IF EXISTS "rsvps_anon_select" ON rsvps;
 -- 7. Admin functions (password protected)
 --    These allow the admin page to function without Supabase Auth
 -- ============================================
-CREATE OR REPLACE FUNCTION admin_get_invitations(admin_password TEXT)
+DROP FUNCTION IF EXISTS admin_get_invitations(TEXT);
+DROP FUNCTION IF EXISTS admin_get_rsvps(TEXT);
+
+CREATE FUNCTION admin_get_invitations(admin_password TEXT)
 RETURNS TABLE (
     id UUID,
     code VARCHAR(20),
@@ -127,7 +130,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION admin_get_rsvps(admin_password TEXT)
+CREATE FUNCTION admin_get_rsvps(admin_password TEXT)
 RETURNS TABLE (
     id UUID,
     invitation_id UUID,

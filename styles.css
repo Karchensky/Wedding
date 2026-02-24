@@ -102,6 +102,24 @@ a {
     color: var(--color-text-light);
     margin-bottom: 60px;
     font-style: italic;
+    display: block;
+    width: 100%;
+    max-width: 65ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.section-head {
+    text-align: center;
+    margin-bottom: 60px;
+}
+.section-head .section-title { margin-bottom: 8px; }
+.section-head .section-subtitle { margin-bottom: 0; }
+
+.section-subtitle--centered {
+    display: block;
+    width: 100%;
+    text-align: center;
 }
 
 .subsection-title {
@@ -545,6 +563,12 @@ a {
     font-style: italic;
     color: var(--color-text-light);
     margin-bottom: 24px;
+    text-align: center;
+    display: block;
+    width: 100%;
+    max-width: 65ch;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .accommodation-details p {
@@ -1233,6 +1257,9 @@ a {
     text-align: center;
     color: var(--color-text-light);
     margin-bottom: 32px;
+    max-width: 65ch;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .lookup-tabs {
@@ -1740,6 +1767,9 @@ a {
     color: var(--color-text-light);
     font-style: italic;
     padding: 48px 24px;
+    max-width: 65ch;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .shared-photo-item {
