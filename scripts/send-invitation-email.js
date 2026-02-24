@@ -58,7 +58,7 @@ const PROJECT_ROOT = path.join(__dirname, '..');
 const INVITATION_TYPES = ['informal', 'save_the_date', 'formal'];
 
 const SUBJECTS = {
-    informal: 'Informal RSVP — Emily & Bryan — Italy, May 2027',
+    informal: 'Informal RSVP — Emily & Bryan\'s Wedding — Italy, May 2027',
     save_the_date: 'Emily & Bryan — Save the Date',
     formal: 'Emily & Bryan — Formal Invitation'
 };

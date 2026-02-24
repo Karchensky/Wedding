@@ -263,26 +263,26 @@ function buildGuestList(guestNames) {
         
         const card = document.createElement('div');
         card.className = 'guest-card';
-        card.innerHTML = 
+        card.innerHTML =
             '<div class="guest-card-header">' +
                 '<span class="guest-name">' + displayName + '</span>' +
-                '<div class="guest-attending">' +
-                    '<label class="radio-label">' +
-                        '<input type="radio" name="guest_' + index + '" value="yes" required>' +
-                        '<span class="radio-custom"></span>' +
-                        'Yes, I plan on attending' +
-                    '</label>' +
-                    '<label class="radio-label">' +
-                        '<input type="radio" name="guest_' + index + '" value="no" required>' +
-                        '<span class="radio-custom"></span>' +
-                        'No, it\'s unlikely' +
-                    '</label>' +
-                    '<label class="radio-label">' +
-                        '<input type="radio" name="guest_' + index + '" value="not_sure" required>' +
-                        '<span class="radio-custom"></span>' +
-                        'Not sure yet' +
-                    '</label>' +
-                '</div>' +
+            '</div>' +
+            '<div class="guest-options">' +
+                '<label class="guest-option">' +
+                    '<input type="radio" name="guest_' + index + '" value="yes" required>' +
+                    '<span class="option-icon"></span>' +
+                    '<span class="option-text">Yes, I plan on attending</span>' +
+                '</label>' +
+                '<label class="guest-option">' +
+                    '<input type="radio" name="guest_' + index + '" value="no" required>' +
+                    '<span class="option-icon"></span>' +
+                    '<span class="option-text">No, it\'s unlikely</span>' +
+                '</label>' +
+                '<label class="guest-option">' +
+                    '<input type="radio" name="guest_' + index + '" value="not_sure" required>' +
+                    '<span class="option-icon"></span>' +
+                    '<span class="option-text">Not sure yet</span>' +
+                '</label>' +
             '</div>';
         
         card.dataset.guestName = name;
