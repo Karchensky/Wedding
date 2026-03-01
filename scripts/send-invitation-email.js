@@ -76,10 +76,12 @@ function parseArgs() {
 
     if (!type || !INVITATION_TYPES.includes(type)) {
         console.error('Usage: node scripts/send-invitation-email.js --type=informal|save_the_date|formal --to=CODE|CODE1,CODE2|file:path|all [--dry-run] [--resend] [--yes]');
+        console.error('With npm run, add -- before args: npm run send-invitation -- --type=informal --to=KARCHENSKY02');
         process.exit(1);
     }
     if (!to) {
         console.error('--to is required: one code, comma-separated codes, file:path, or all');
+        console.error('With npm run, add -- before args: npm run send-invitation -- --type=informal --to=KARCHENSKY02');
         process.exit(1);
     }
     return { type, to, dryRun, resend, yes };
@@ -115,8 +117,10 @@ function loadTemplate(type) {
     return fs.readFileSync(templatePath, 'utf8');
 }
 
-function buildHtml(template, code) {
-    return template.replace(/\{\{INVITE_CODE\}\}/g, code || '');
+function buildHtml(template, code, partyName) {
+    return template
+        .replace(/\{\{INVITE_CODE\}\}/g, code || '')
+        .replace(/\{\{PARTY_NAME\}\}/g, partyName || '');
 }
 
 async function main() {
@@ -191,7 +195,7 @@ async function main() {
             }
         }
 
-        const html = buildHtml(template, inv.code);
+        const html = buildHtml(template, inv.code, inv.party_name);
 
         if (dryRun) {
             console.log('  Would send to:', inv.email, '|', inv.code, inv.party_name);

@@ -2,6 +2,7 @@
   "name": "wedding-website",
   "version": "1.0.0",
   "description": "Bryan & Emily Wedding Website - Castello del Trebbio",
+  "engines": { "node": ">=20" },
   "scripts": {
     "migrate": "node scripts/run-migration.js",
     "sync-invitations": "node scripts/sync-invitations.js",
