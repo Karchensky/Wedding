@@ -54,7 +54,15 @@ DROP FUNCTION IF EXISTS insert_planning_request(UUID, JSONB, TEXT, TEXT);
 DROP FUNCTION IF EXISTS update_planning_request(UUID, JSONB, TEXT, TEXT);
 DROP FUNCTION IF EXISTS admin_get_planning_requests(TEXT);
 
-CREATE OR REPLACE FUNCTION get_informal_rsvp_by_invitation(inv_id UUID)
+-- Drop informal_rsvp functions if they exist (e.g. from 017 with physical_address) so we can (re)create without return-type conflict
+DROP FUNCTION IF EXISTS get_informal_rsvp_by_invitation(UUID);
+DROP FUNCTION IF EXISTS insert_informal_rsvp(UUID, JSONB, TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS insert_informal_rsvp(UUID, JSONB, TEXT, TEXT);
+DROP FUNCTION IF EXISTS update_informal_rsvp(UUID, JSONB, TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS update_informal_rsvp(UUID, JSONB, TEXT, TEXT);
+DROP FUNCTION IF EXISTS admin_get_informal_rsvp(TEXT);
+
+CREATE FUNCTION get_informal_rsvp_by_invitation(inv_id UUID)
 RETURNS TABLE (
     id UUID,
     invitation_id UUID,
@@ -76,7 +84,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION insert_informal_rsvp(
+CREATE FUNCTION insert_informal_rsvp(
     inv_id UUID,
     p_guest_responses JSONB,
     p_message TEXT,
@@ -102,7 +110,7 @@ EXCEPTION
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION update_informal_rsvp(
+CREATE FUNCTION update_informal_rsvp(
     inv_id UUID,
     p_guest_responses JSONB,
     p_message TEXT,
@@ -127,7 +135,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION admin_get_informal_rsvp(admin_password TEXT)
+CREATE FUNCTION admin_get_informal_rsvp(admin_password TEXT)
 RETURNS TABLE (
     id UUID,
     invitation_id UUID,
