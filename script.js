@@ -203,7 +203,9 @@ function selectInvitation(invitation) {
     
     // Update header
     document.getElementById('partyName').textContent = 'Welcome, ' + invitation.party_name + '!';
-    document.getElementById('partyInfo').textContent = 'Your party of ' + invitation.party_size + ' is invited to celebrate with us.';
+    document.getElementById('partyInfo').textContent = (invitation.party_size === 1)
+        ? 'Your party is invited to celebrate with us.'
+        : 'Your party of ' + invitation.party_size + ' is invited to celebrate with us.';
     
     // Set hidden fields
     document.getElementById('invitationId').value = invitation.id;
