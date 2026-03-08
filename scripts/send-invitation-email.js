@@ -53,6 +53,7 @@ const GMAIL_APP_PASSWORD = process.env.EMAIL_PASSWORD || process.env.GMAIL_APP_P
 const SMTP_SERVER = process.env.SMTP_SERVER || 'smtp.gmail.com';
 const SMTP_PORT = parseInt(process.env.SMTP_PORT || '465', 10);
 const SMTP_SECURE = SMTP_PORT === 465;
+const CC_EMAIL = process.env.CC_EMAIL ? process.env.CC_EMAIL.trim() : '';
 
 const PROJECT_ROOT = path.join(__dirname, '..');
 const INVITATION_TYPES = ['informal', 'save_the_date', 'formal'];
@@ -210,12 +211,14 @@ async function main() {
                 secure: SMTP_SECURE,
                 auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD }
             });
-            await transporter.sendMail({
+            const mailOptions = {
                 from: `"Emily & Bryan" <${GMAIL_USER}>`,
                 to: inv.email.trim(),
                 subject,
                 html
-            });
+            };
+            if (CC_EMAIL && type === 'informal') mailOptions.cc = CC_EMAIL;
+            await transporter.sendMail(mailOptions);
 
             const { error: updateError } = await supabase
                 .from('invitations')
